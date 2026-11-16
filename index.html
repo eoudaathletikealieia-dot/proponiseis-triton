@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Καταγραφή Προπόνησης · Σύλλογος Τρίτων</title>
-<meta name="theme-color" content="#1F3864">
+<meta name="theme-color" content="#141414">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="Προπόνηση">
 <style>
 :root{
-  --navy:#1F3864; --gold:#D4AF37; --sand:#F6F2E7; --ink:#1b1b1b; --muted:#6b6b6b; --line:#d9d3c2;
+  --navy:#141414; --gold:#C9A27E; --sand:#F3EEE7; --ink:#1b1b1b; --muted:#6b6b6b; --line:#d9d3c2;
   --c-rig:#CC66FF; --c-rig-l:#F1DBFF;
   --c-up:#92D050;  --c-up-l:#E3F2D3;
   --c-mid:#FFD966; --c-mid-l:#FFF3CC;
@@ -28,6 +28,8 @@ button{font:inherit;cursor:pointer}
 [data-open]:active,[data-edit]:active{opacity:.7}
 input,select{font:inherit}
 header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+header .hlogo{width:40px;height:40px;border-radius:50%;flex:none}
+header{border-bottom:2px solid var(--gold)}
 header h1{font-size:17px;margin:0;flex:1;letter-spacing:.3px}
 header h1 small{display:block;font-size:12px;color:var(--gold);font-weight:600}
 .hbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:10px;padding:7px 11px;font-size:14px}
@@ -38,7 +40,7 @@ main{padding:14px 14px 110px;max-width:900px;margin:0 auto}
 .empty{text-align:center;color:var(--muted);padding:40px 10px}
 .fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;background:var(--gold);color:var(--navy);border:0;border-radius:28px;padding:15px 22px;font-weight:800;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
 .sess{display:flex;align-items:center;gap:12px}
-.sess .no{min-width:46px;height:46px;border-radius:12px;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sess .no{min-width:46px;height:46px;border-radius:12px;background:var(--navy);color:var(--gold);border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800}
 .sess .info{flex:1;min-width:0}
 .sess .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pill{display:inline-block;background:var(--sand);border-radius:20px;padding:2px 9px;font-size:12px;margin:4px 4px 0 0}
@@ -87,11 +89,53 @@ table.form th,table.form td{border:1px solid #444;padding:3px 4px;text-align:cen
 table.form thead th{font-weight:800}
 table.form .h-rig{background:var(--c-rig)} .h-up{background:var(--c-up)} .h-mid{background:var(--c-mid)} .h-low{background:var(--c-low)} .h-y{background:var(--c-yel)}
 table.form tbody td.ttl{text-align:left}
-.formtitle{display:flex;gap:30px;border:1px solid #444;padding:6px 10px;font-weight:800;font-size:12px;margin:0 0 8px 34px;background:#fff}
+.formtitle img{height:13mm;width:13mm;margin:-4px 0}
+.formtitle{display:flex;align-items:center;gap:30px;border:1px solid #444;padding:6px 10px;font-weight:800;font-size:12px;margin:0 0 8px 34px;background:#fff}
 .formtitle span{white-space:nowrap}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;z-index:99;opacity:0;transition:.25s;pointer-events:none}
 .toast.show{opacity:1}
 #printArea{display:none}
+/* quick catch */
+.catchbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.catchbar button{border:2px solid #000;border-radius:14px;min-height:76px;font-weight:900;font-size:15px;color:#000;line-height:1.15;padding:6px 4px}
+.catchbar button big{display:block;font-size:26px}
+.catchbar .cu{background:var(--c-up)} .catchbar .cm{background:var(--c-mid)} .catchbar .cl{background:var(--c-low)}
+.catchbar button:active{transform:scale(.96)}
+.totals{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin:0 2px 8px}
+.totals b{font-size:22px}
+.fishchips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
+.fishchips button{min-height:60px;border:2px solid #000;border-radius:12px;background:#fff;font-size:18px;font-weight:800;color:#000}
+.fishchips button:active{background:#FFE600}
+.toast.undo{pointer-events:auto;white-space:nowrap;max-width:94vw;display:flex;gap:12px;align-items:center;padding:10px 12px 10px 18px;font-size:16px}
+.toast button{background:#FFE600;color:#000;border:0;border-radius:14px;padding:8px 12px;font-weight:900}
+/* sun mode: max contrast, big targets */
+body.sun{background:#fff;font-size:18px}
+body.sun .card,body.sun .row,body.sun .grp{border:2px solid #000;box-shadow:none}
+body.sun .muted{color:#222}
+body.sun label.f{color:#000;font-size:14px}
+body.sun .inp{border:2px solid #000;font-size:20px;font-weight:700;min-height:54px;color:#000}
+body.sun .tbtn{border:2px solid #000;color:#000;font-size:16px;padding:11px 14px}
+body.sun .tbtn.on{background:#000;color:#fff}
+body.sun .fab{background:#000;color:#FFE600;border:3px solid #FFE600;font-size:19px;padding:18px 24px}
+body.sun .row .lft{font-size:24px;border-right:2px solid #000}
+body.sun .row .lft span{font-size:15px}
+body.sun .row .rig{color:#000;font-size:17px}
+body.sun .pm div{font-size:15px;color:#000;border:1.5px solid #000;font-weight:600}
+body.sun .pm .u{background:var(--c-up)} body.sun .pm .m{background:var(--c-mid)} body.sun .pm .l{background:var(--c-low)}
+body.sun .fish{color:#000;font-weight:900}
+body.sun .sheet{background:#fff}
+body.sun .grp h3{font-size:17px;border-bottom:2px solid #000}
+body.sun .grp .gb{background:#fff!important}
+body.sun .btn{min-height:56px;font-size:17px}
+body.sun .btn.w{border:2px solid #000;color:#000}
+body.sun .btn.d{border:2px solid #b3261e}
+body.sun .sess .info b{font-size:19px}
+body.sun .sess .no{font-size:20px;min-width:52px;height:52px}
+body.sun .pill{background:#000;color:#fff;font-size:14px;padding:4px 10px}
+body.sun header h1{font-size:19px}
+body.sun header h1 small{color:#FFE600;font-size:13px}
+body.sun .hbtn{border:2px solid #fff;font-size:17px;padding:8px 12px}
+body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 @media print{
   @page{size:A4 landscape;margin:8mm}
   html,body{background:#fff!important}
@@ -108,7 +152,9 @@ table.form tbody td.ttl{text-align:left}
 <body>
 <header>
   <button class="hbtn" id="backBtn" style="display:none">‹</button>
+  <img src="logo.png" alt="Triton" class="hlogo">
   <h1 id="title">Καταγραφή Προπόνησης<small>Σύλλογος Τρίτων</small></h1>
+  <button class="hbtn" id="sunBtn" title="Εμφάνιση για ήλιο">☀️</button>
   <button class="hbtn" id="menuBtn">⋮</button>
 </header>
 <main id="app"><div class="card" style="margin-top:20px">
@@ -134,13 +180,17 @@ table.form tbody td.ttl{text-align:left}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.0.2';
+const APP_VERSION='1.0.4';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
 const PMF=[['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','numeric'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
 
 let sessions=load();
+const DEF_FISH=['Σαργός','Μουρμούρα','Σπάρος','Γόπα','Μελανούρι','Λυθρίνι','Κέφαλος','Χειλού','Σάλπα','Σαφρίδι','Κολιός','Τσιπούρα'];
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+let catchKey=null;
 let view={name:'home',id:null,table:false};
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
@@ -150,7 +200,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}
-function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800)}
+function toast(t){const e=document.getElementById('toast');e.classList.remove('undo');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800)}
 function cur(){return sessions.find(s=>s.id===view.id)}
 function emptyPM(){return{len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
 function emptyRow(){return{t:nowTime(),rig:{type:'',len:'',thick:''},up:emptyPM(),mid:emptyPM(),low:emptyPM()}}
@@ -188,6 +238,12 @@ function render(){
     <div><label class="f">Ημερομηνία</label><input class="inp" type="date" data-h="date" value="${esc(s.date)}"></div>
     <div class="full"><label class="f">Πεδίο</label><input class="inp" list="dl-field" data-h="field" value="${esc(s.field)}"></div>
   </div></div>
+  <div class="totals"><span>${s.rows.length} καταγραφές</span><span>Ψάρια: <b>🐟 ${fishCount(s)}</b></span></div>
+  <div class="catchbar">
+    <button class="cu" data-catch="up"><big>🐟</big>ΠΑΝΩ</button>
+    <button class="cm" data-catch="mid"><big>🐟</big>ΜΕΣΑΙΟ</button>
+    <button class="cl" data-catch="low"><big>🐟</big>ΚΑΤΩ</button>
+  </div>
   <div class="toolbar">
     <button class="tbtn ${!view.table?'on':''}" data-act="cards">Κάρτες</button>
     <button class="tbtn ${view.table?'on':''}" data-act="table">Πίνακας</button>
@@ -230,7 +286,7 @@ function printSession(s){
   const PER=25,rows=s?s.rows.length:0,pages=Math.max(1,Math.ceil(rows/PER));
   let h='';
   for(let p=0;p<pages;p++){
-    h+=`<div class="ppage"><div class="formtitle"><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
+    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
   }
   document.getElementById('printArea').innerHTML=h;
   setTimeout(()=>window.print(),100);
@@ -270,10 +326,49 @@ function readEditor(){
   document.querySelectorAll('#sheet [data-p]').forEach(el=>{const p=el.dataset.p.split('.');if(p.length===1)edRow[p[0]]=el.value.trim();else edRow[p[0]][p[1]]=el.value.trim()});
 }
 
+/* ---------- QUICK CATCH ---------- */
+function openCatch(k){
+  catchKey=k;
+  const lab=PM.find(x=>x[0]===k)[1];
+  const hist={};
+  sessions.forEach(ss=>ss.rows.forEach(r=>PM.forEach(([kk])=>{const f=(r[kk].fish||'').trim();if(f)hist[f]=(hist[f]||0)+1})));
+  const list=[...Object.keys(hist).sort((a,b)=>hist[b]-hist[a]),...DEF_FISH].filter((v,i,a)=>a.indexOf(v)===i).slice(0,16);
+  const s=cur(),last=s.rows[s.rows.length-1];
+  const h=`<div class="sheet-h"><b>🐟 ${lab}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+    <div class="fishchips">${list.map(f=>`<button data-fish="${esc(f)}">${esc(f)}</button>`).join('')}</div>
+    <div class="grid3" style="grid-template-columns:1fr auto;margin-bottom:10px"><input class="inp" id="fishOther" list="dl-fish" placeholder="Άλλο ψάρι…"><button class="btn p" data-act="fishother">OK</button></div>
+    <p class="muted">${last?'Η αρματωσιά και τα παράμαλα αντιγράφονται από την καταγραφή #'+s.rows.length+'.':'Πρώτη καταγραφή: συμπλήρωσε μετά αρματωσιά και παράμαλα.'}</p></div>`;
+  const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
+}
+function addCatch(fish){
+  fish=(fish||'').trim();if(!fish)return;
+  const s=cur(),k=catchKey,t=nowTime(),before=JSON.stringify(s.rows);
+  const last=s.rows[s.rows.length-1];let n;
+  if(last&&last.t===t&&!last[k].fish){last[k].fish=fish;n=s.rows.length}
+  else{const r=last?JSON.parse(JSON.stringify(last)):emptyRow();r.t=t;PM.forEach(([kk])=>r[kk].fish='');r[k].fish=fish;s.rows.push(r);n=s.rows.length}
+  save();closeSheet();render();
+  undoToast(`🐟 ${fish} → #${n}`,()=>{s.rows=JSON.parse(before);save();render();toast('Αναιρέθηκε')});
+  if(navigator.vibrate)navigator.vibrate(40);
+}
+function undoToast(msg,fn){
+  const e=document.getElementById('toast');e.innerHTML=esc(msg)+' <button>ΑΝΑΙΡΕΣΗ</button>';e.classList.add('show','undo');
+  e.querySelector('button').onclick=()=>{e.classList.remove('show','undo');fn()};
+  clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show','undo'),5000);
+}
+
+/* ---------- SUN MODE & SCREEN ON ---------- */
+function applySun(){const on=lsGet('kp_sun','1')==='1';document.body.classList.toggle('sun',on);document.getElementById('sunBtn').textContent=on?'☀️':'🌙'}
+document.getElementById('sunBtn').onclick=()=>{lsSet('kp_sun',lsGet('kp_sun','1')==='1'?'0':'1');applySun();toast(document.body.classList.contains('sun')?'Εμφάνιση για ήλιο':'Κανονική εμφάνιση')};
+let wakeLock=null;
+async function setWake(on){try{if(on&&'wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen')}else if(wakeLock){await wakeLock.release();wakeLock=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&lsGet('kp_wake','0')==='1')setWake(true)});
+
 /* ---------- MENU ---------- */
 function openMenu(){
   const s=view.name==='session';
   let h=`<div class="sheet-h"><b>Μενού</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+  <div class="card"><b>Οθόνη πάντα αναμμένη</b><p class="muted">${'wakeLock' in navigator?'Η οθόνη δεν σβήνει όσο η εφαρμογή είναι ανοιχτή. Καταναλώνει περισσότερη μπαταρία.':'Δεν υποστηρίζεται σε αυτόν τον browser.'}</p>
+  ${'wakeLock' in navigator?`<button class="btn ${lsGet('kp_wake','0')==='1'?'g':'w'}" data-act="wake" style="width:100%">${lsGet('kp_wake','0')==='1'?'ΝΑΙ – πάτα για ΟΧΙ':'ΟΧΙ – πάτα για ΝΑΙ'}</button>`:''}</div>
   <div class="card"><b>Κενό έντυπο</b><p class="muted">Εκτύπωση του εντύπου χωρίς στοιχεία, για συμπλήρωση με το χέρι.</p><button class="btn p" data-act="printblank">🖨 Εκτύπωση κενού</button></div>
   <div class="card"><b>Αντίγραφο ασφαλείας</b><p class="muted">Τα δεδομένα μένουν μόνο σε αυτή τη συσκευή. Κράτα αντίγραφο σε αρχείο.</p>
   <div class="btns"><button class="btn p" data-act="export">⬇ Αποθήκευση</button><button class="btn w" data-act="import">⬆ Εισαγωγή</button></div></div>
@@ -308,6 +403,7 @@ document.getElementById('sheetBg').onclick=closeSheet;
 
 document.getElementById('app').addEventListener('click',e=>{
   const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false};render();window.scrollTo(0,0);return}
+  const ct=e.target.closest('[data-catch]');if(ct){openCatch(ct.dataset.catch);return}
   const ed=e.target.closest('[data-edit]');if(ed){openEditor(Number(ed.dataset.edit));return}
   const a=e.target.closest('[data-act]');if(!a)return;
   const s=cur();
@@ -325,6 +421,7 @@ document.getElementById('app').addEventListener('change',e=>{
 });
 
 document.getElementById('sheet').addEventListener('click',e=>{
+  const fb=e.target.closest('[data-fish]');if(fb){addCatch(fb.dataset.fish);return}
   const c=e.target.closest('[data-copy]');
   if(c){const[from,to]=c.dataset.copy.split('>');readEditor();const keepFish=edRow[to].fish;edRow[to]={...edRow[from],fish:keepFish};
     PMF.forEach(([f])=>{const el=document.querySelector(`#sheet [data-p="${to}.${f}"]`);if(el)el.value=edRow[to][f]});return}
@@ -332,6 +429,8 @@ document.getElementById('sheet').addEventListener('click',e=>{
   const s=cur();
   switch(a.dataset.act){
     case'close':closeSheet();break;
+    case'fishother':addCatch(document.getElementById('fishOther').value);break;
+    case'wake':{const on=lsGet('kp_wake','0')!=='1';lsSet('kp_wake',on?'1':'0');setWake(on);openMenu();toast(on?'Η οθόνη μένει αναμμένη':'Κανονικό σβήσιμο οθόνης')}break;
     case'now':document.querySelector('#sheet [data-p="t"]').value=nowTime();break;
     case'saverow':readEditor();if(edIdx==null)s.rows.push(edRow);else s.rows[edIdx]=edRow;save();closeSheet();render();toast('Αποθηκεύτηκε');break;
     case'duprow':readEditor();{const n=JSON.parse(JSON.stringify(edRow));n.t=nowTime();PM.forEach(([k])=>n[k].fish='');s.rows.push(n);save();closeSheet();render();toast('Προστέθηκε #'+s.rows.length)}break;
@@ -355,6 +454,8 @@ document.getElementById('importFile').onchange=e=>{
 };
 
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+applySun();
+if(lsGet('kp_wake','0')==='1')setWake(true);
 render();
 </script>
 </body>
