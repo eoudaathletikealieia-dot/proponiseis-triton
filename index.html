@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Καταγραφή Προπόνησης · Σύλλογος Τρίτων</title>
+<meta name="theme-color" content="#1F3864">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Προπόνηση">
+<style>
+:root{
+  --navy:#1F3864; --gold:#D4AF37; --sand:#F6F2E7; --ink:#1b1b1b; --muted:#6b6b6b; --line:#d9d3c2;
+  --c-rig:#CC66FF; --c-rig-l:#F1DBFF;
+  --c-up:#92D050;  --c-up-l:#E3F2D3;
+  --c-mid:#FFD966; --c-mid-l:#FFF3CC;
+  --c-low:#9DC3E6; --c-low-l:#DEEBF7;
+  --c-yel:#FFFF00;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--sand);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px}
+button{font:inherit;cursor:pointer}
+[data-open],[data-edit],[data-act],[data-copy],.sheet-bg,.sess,.row,table.form tr[data-edit] td{cursor:pointer;touch-action:manipulation}
+[data-open]:active,[data-edit]:active{opacity:.7}
+input,select{font:inherit}
+header{position:sticky;top:0;z-index:20;background:var(--navy);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+header h1{font-size:17px;margin:0;flex:1;letter-spacing:.3px}
+header h1 small{display:block;font-size:12px;color:var(--gold);font-weight:600}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:10px;padding:7px 11px;font-size:14px}
+.hbtn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:700}
+main{padding:14px 14px 110px;max-width:900px;margin:0 auto}
+.card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:14px;margin-bottom:12px}
+.muted{color:var(--muted);font-size:13px}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;background:var(--gold);color:var(--navy);border:0;border-radius:28px;padding:15px 22px;font-weight:800;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
+.sess{display:flex;align-items:center;gap:12px}
+.sess .no{min-width:46px;height:46px;border-radius:12px;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800}
+.sess .info{flex:1;min-width:0}
+.sess .info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pill{display:inline-block;background:var(--sand);border-radius:20px;padding:2px 9px;font-size:12px;margin:4px 4px 0 0}
+.grid3{display:grid;grid-template-columns:80px 1fr;gap:8px}
+.grid3 .full{grid-column:1/-1}
+label.f{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-weight:600}
+.inp{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:#fff;min-height:42px}
+.inp:focus{outline:2px solid var(--gold);border-color:var(--gold)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 12px}
+.tbtn{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--navy);font-weight:600}
+.tbtn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.row{background:#fff;border-radius:12px;margin-bottom:9px;box-shadow:0 1px 2px rgba(0,0,0,.07);overflow:hidden;display:flex}
+.row .lft{background:var(--c-yel);min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;padding:6px}
+.row .lft span{font-size:12px;font-weight:600}
+.row .body{flex:1;padding:8px 10px;min-width:0}
+.row .rig{font-weight:700;color:#7a2fa3;font-size:14px}
+.pm{display:flex;gap:6px;margin-top:5px;flex-wrap:wrap}
+.pm div{border-radius:7px;padding:3px 7px;font-size:12px;max-width:100%}
+.pm .u{background:var(--c-up-l)} .pm .m{background:var(--c-mid-l)} .pm .l{background:var(--c-low-l)}
+.fish{font-weight:700;color:#0b6b2e}
+/* editor sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--sand);border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;display:none;max-width:900px;margin:0 auto}
+.sheet.open,.sheet-bg.open{display:block}
+.sheet-h{position:sticky;top:0;background:var(--navy);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:8px;z-index:2}
+.sheet-h b{flex:1}
+.sheet-b{padding:12px 12px calc(20px + env(safe-area-inset-bottom))}
+.grp{border-radius:12px;margin-bottom:10px;overflow:hidden;background:#fff}
+.grp h3{margin:0;padding:7px 12px;font-size:14px;letter-spacing:.5px;text-align:center}
+.grp .gb{padding:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.grp .gb .full{grid-column:1/-1}
+.g-rig h3{background:var(--c-rig)} .g-up h3{background:var(--c-up)} .g-mid h3{background:var(--c-mid)} .g-low h3{background:var(--c-low)} .g-gen h3{background:var(--c-yel)}
+.g-rig .gb{background:var(--c-rig-l)} .g-up .gb{background:var(--c-up-l)} .g-mid .gb{background:var(--c-mid-l)} .g-low .gb{background:var(--c-low-l)}
+.copybtn{font-size:12px;border:0;background:rgba(0,0,0,.08);border-radius:7px;padding:3px 8px;margin-left:6px}
+.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:700;font-size:15px}
+.btn.p{background:var(--navy);color:#fff}
+.btn.g{background:var(--gold);color:var(--navy)}
+.btn.d{background:#fff;color:#b3261e;border:1px solid #e6b8b5}
+.btn.w{background:#fff;color:var(--navy);border:1px solid var(--line)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btns .btn{flex:1}
+/* sheet table (form look) */
+.tablewrap{overflow:auto;background:#fff;border-radius:10px;-webkit-overflow-scrolling:touch}
+table.form{border-collapse:collapse;font-size:11px;min-width:1100px;width:100%}
+table.form th,table.form td{border:1px solid #444;padding:3px 4px;text-align:center;white-space:nowrap;height:22px}
+table.form thead th{font-weight:800}
+table.form .h-rig{background:var(--c-rig)} .h-up{background:var(--c-up)} .h-mid{background:var(--c-mid)} .h-low{background:var(--c-low)} .h-y{background:var(--c-yel)}
+table.form tbody td.ttl{text-align:left}
+.formtitle{display:flex;gap:30px;border:1px solid #444;padding:6px 10px;font-weight:800;font-size:12px;margin:0 0 8px 34px;background:#fff}
+.formtitle span{white-space:nowrap}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;z-index:99;opacity:0;transition:.25s;pointer-events:none}
+.toast.show{opacity:1}
+#printArea{display:none}
+@media print{
+  @page{size:A4 landscape;margin:8mm}
+  html,body{background:#fff!important}
+  header,main,.fab,.sheet,.sheet-bg,.toast{display:none!important}
+  #printArea{display:block}
+  .ppage{page-break-after:always}
+  .ppage:last-child{page-break-after:auto}
+  table.form{min-width:0;font-size:9px}
+  table.form th,table.form td{height:6.2mm;padding:1px 2px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="hbtn" id="backBtn" style="display:none">‹</button>
+  <h1 id="title">Καταγραφή Προπόνησης<small>Σύλλογος Τρίτων</small></h1>
+  <button class="hbtn" id="menuBtn">⋮</button>
+</header>
+<main id="app"><div class="card" style="margin-top:20px">
+<b>Η εφαρμογή δεν ξεκίνησε.</b>
+<p>Αν βλέπεις αυτό το μήνυμα, το κινητό σου άνοιξε το αρχείο σε <b>προεπισκόπηση</b> (WhatsApp, Viber, Αρχεία, email), όπου δεν τρέχουν εφαρμογές.</p>
+<p>Άνοιξε τον <b>σύνδεσμο</b> της εφαρμογής στο <b>Safari</b> ή στο Chrome.</p>
+</div></main>
+<button class="fab" id="fab">+ Νέα προπόνηση</button>
+
+<div class="sheet-bg" id="sheetBg" onclick=""></div>
+<div class="sheet" id="sheet"></div>
+<div id="printArea"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFile" accept=".json,application/json" style="display:none">
+
+<datalist id="dl-type"></datalist>
+<datalist id="dl-bait"></datalist>
+<datalist id="dl-fish"></datalist>
+<datalist id="dl-flotter"></datalist>
+<datalist id="dl-field"></datalist>
+
+<script>
+window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
+</script>
+<script>
+const APP_VERSION='1.0.2';
+const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
+const KEY='kp_sessions_v1';
+const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
+const PMF=[['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','numeric'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
+
+let sessions=load();
+let view={name:'home',id:null,table:false};
+
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(sessions))}catch(e){toast('Σφάλμα αποθήκευσης')}}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
+function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800)}
+function cur(){return sessions.find(s=>s.id===view.id)}
+function emptyPM(){return{len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
+function emptyRow(){return{t:nowTime(),rig:{type:'',len:'',thick:''},up:emptyPM(),mid:emptyPM(),low:emptyPM()}}
+function fishCount(s){let n=0;s.rows.forEach(r=>PM.forEach(([k])=>{if((r[k].fish||'').trim())n++}));return n}
+
+function refreshDatalists(){
+  const sets={type:new Set(),bait:new Set(),fish:new Set(),flotter:new Set(),field:new Set()};
+  sessions.forEach(s=>{if(s.field)sets.field.add(s.field);s.rows.forEach(r=>{if(r.rig.type)sets.type.add(r.rig.type);PM.forEach(([k])=>{['bait','fish','flotter'].forEach(f=>{if(r[k][f])sets[f].add(r[k][f])})})})});
+  for(const k in sets){document.getElementById('dl-'+k).innerHTML=[...sets[k]].sort((a,b)=>a.localeCompare(b,'el')).map(v=>`<option value="${esc(v)}">`).join('')}
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  const app=document.getElementById('app'),fab=document.getElementById('fab'),back=document.getElementById('backBtn'),title=document.getElementById('title');
+  refreshDatalists();
+  if(view.name==='home'){
+    back.style.display='none';
+    title.innerHTML='Καταγραφή Προπόνησης<small>Σύλλογος Τρίτων</small>';
+    fab.textContent='+ Νέα προπόνηση';fab.style.display='';
+    if(!sessions.length){app.innerHTML=`<div class="empty"><div style="font-size:44px">🎣</div><p><b>Καμία προπόνηση ακόμη</b></p><p>Πάτα «+ Νέα προπόνηση» για να ξεκινήσεις.</p></div>`;return}
+    const list=[...sessions].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(Number(b.no)||0)-(Number(a.no)||0));
+    app.innerHTML=list.map(s=>`<div class="card sess" role="button" onclick="" data-open="${s.id}">
+      <div class="no">${esc(s.no||'–')}</div>
+      <div class="info"><b>${esc(s.field||'Χωρίς πεδίο')}</b><span class="muted">${fmtDate(s.date)}</span><br>
+      <span class="pill">${s.rows.length} καταγραφές</span><span class="pill">🐟 ${fishCount(s)}</span></div>
+      <div style="color:var(--muted);font-size:22px">›</div></div>`).join('');
+    return;
+  }
+  const s=cur();if(!s){view={name:'home'};return render()}
+  back.style.display='';
+  title.innerHTML=`Προπόνηση Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;
+  fab.textContent='+ Νέα καταγραφή';fab.style.display='';
+  let h=`<div class="card"><div class="grid3">
+    <div><label class="f">Νο</label><input class="inp" inputmode="numeric" data-h="no" value="${esc(s.no)}"></div>
+    <div><label class="f">Ημερομηνία</label><input class="inp" type="date" data-h="date" value="${esc(s.date)}"></div>
+    <div class="full"><label class="f">Πεδίο</label><input class="inp" list="dl-field" data-h="field" value="${esc(s.field)}"></div>
+  </div></div>
+  <div class="toolbar">
+    <button class="tbtn ${!view.table?'on':''}" data-act="cards">Κάρτες</button>
+    <button class="tbtn ${view.table?'on':''}" data-act="table">Πίνακας</button>
+    <button class="tbtn" data-act="print">🖨 Εκτύπωση / PDF</button>
+    <button class="tbtn" data-act="csv">⬇ Excel (CSV)</button>
+  </div>`;
+  if(!s.rows.length){h+=`<div class="empty">Καμία καταγραφή. Πάτα «+ Νέα καταγραφή».<br><span class="muted">Κάθε νέα καταγραφή αντιγράφει την αρματωσιά και τα παράμαλα της προηγούμενης· αλλάζεις μόνο ό,τι άλλαξε.</span></div>`}
+  else if(view.table){h+=`<div class="tablewrap">${formTable(s,false)}</div><p class="muted">Πάτα μια γραμμή για επεξεργασία.</p>`}
+  else{
+    h+=s.rows.map((r,i)=>{
+      const rig=[r.rig.type,r.rig.len&&('Μ '+r.rig.len),r.rig.thick&&('Π '+r.rig.thick)].filter(Boolean).join(' · ')||'—';
+      const pm=PM.map(([k,lab,c])=>{const p=r[k];const parts=[p.len&&('Μ '+p.len),p.thick&&('Π '+p.thick),p.hook&&('#'+p.hook),p.flotter,p.bait].filter(Boolean);if(!parts.length&&!p.fish)return'';return`<div class="${c}"><b>${lab.split(' ')[0]}</b> ${esc(parts.join(' · '))}${p.fish?` <span class="fish">🐟 ${esc(p.fish)}</span>`:''}</div>`}).join('');
+      return`<div class="row" role="button" onclick="" data-edit="${i}"><div class="lft">${i+1}<span>${esc(r.t)}</span></div><div class="body"><div class="rig">${esc(rig)}</div><div class="pm">${pm||'<span class="muted">Χωρίς παράμαλα</span>'}</div></div></div>`}).join('');
+  }
+  h+=`<div class="btns" style="margin-top:18px"><button class="btn d" data-act="delsess">Διαγραφή προπόνησης</button></div>`;
+  app.innerHTML=h;
+}
+
+function formTable(s,print,rowsFrom=0,rowsTo=null){
+  const rows=s?s.rows:[];
+  const to=rowsTo!=null?rowsTo:Math.max(rows.length,25);
+  let h=`<table class="form"><colgroup><col style="width:3%"><col style="width:4.5%"><col style="width:8%"><col style="width:3.8%"><col style="width:3.8%">`;
+  for(let i=0;i<3;i++)h+=`<col style="width:3.4%"><col style="width:3.4%"><col style="width:3.4%"><col style="width:3.4%"><col style="width:5%"><col style="width:5.3%">`;
+  h+=`</colgroup><thead><tr><th class="h-y" rowspan="2" style="font-size:14px">#</th><th class="h-y" rowspan="2" style="font-size:14px">🕒</th><th class="h-rig" colspan="3">ΑΡΜΑΤΩΣΙΑ</th>`;
+  PM.forEach(([,lab,,hc])=>h+=`<th class="${hc}" colspan="6">${lab}</th>`);
+  h+=`</tr><tr><th class="h-rig">ΤΥΠΟΣ</th><th class="h-rig">ΜΗΚΟΣ</th><th class="h-rig">ΠΑΧΟΣ</th>`;
+  PM.forEach(([,,,hc])=>h+=`<th class="${hc}">ΜΗΚΟΣ</th><th class="${hc}">ΠΑΧΟΣ</th><th class="${hc}">HOOK Nr</th><th class="${hc}">FLOTTER</th><th class="${hc}">ΔΟΛΩΜΑ</th><th class="${hc}">ΨΑΡΙ</th>`);
+  h+=`</tr></thead><tbody>`;
+  for(let i=rowsFrom;i<to;i++){
+    const r=rows[i];
+    if(!r){h+=`<tr><td>${print?'':''}</td><td></td><td></td><td></td><td></td>${'<td></td>'.repeat(18)}</tr>`;continue}
+    h+=`<tr ${print?'':`data-edit="${i}" onclick=""`}><td>${i+1}</td><td>${esc(r.t)}</td><td class="ttl">${esc(r.rig.type)}</td><td>${esc(r.rig.len)}</td><td>${esc(r.rig.thick)}</td>`;
+    PM.forEach(([k])=>PMF.forEach(([f])=>h+=`<td>${esc(r[k][f])}</td>`));
+    h+=`</tr>`;
+  }
+  return h+`</tbody></table>`;
+}
+
+function printSession(s){
+  const PER=25,rows=s?s.rows.length:0,pages=Math.max(1,Math.ceil(rows/PER));
+  let h='';
+  for(let p=0;p<pages;p++){
+    h+=`<div class="ppage"><div class="formtitle"><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
+  }
+  document.getElementById('printArea').innerHTML=h;
+  setTimeout(()=>window.print(),100);
+}
+
+/* ---------- EDITOR ---------- */
+let edIdx=null,edRow=null;
+function openEditor(idx){
+  const s=cur();
+  edIdx=idx;
+  if(idx==null){
+    const prev=s.rows[s.rows.length-1];
+    edRow=prev?JSON.parse(JSON.stringify(prev)):emptyRow();
+    edRow.t=nowTime();PM.forEach(([k])=>edRow[k].fish='');
+  }else edRow=JSON.parse(JSON.stringify(s.rows[idx]));
+  const num=idx==null?s.rows.length+1:idx+1;
+  const inp=(path,val,mode,list,full)=>`<div class="${full?'full':''}"><label class="f">${path[1]}</label><input class="inp" ${mode==='text'?'':`inputmode="${mode}"`} ${list?`list="${list}"`:''} data-p="${path[0]}" value="${esc(val)}"></div>`;
+  let h=`<div class="sheet-h"><b>Καταγραφή #${num}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+  <div class="grp g-gen"><h3>ΩΡΑ</h3><div class="gb" style="background:#fffde0;grid-template-columns:1fr auto"><input class="inp" type="time" data-p="t" value="${esc(edRow.t)}"><button class="btn w" data-act="now" style="padding:8px 12px">Τώρα</button></div></div>
+  <div class="grp g-rig"><h3>ΑΡΜΑΤΩΣΙΑ</h3><div class="gb">
+    ${inp(['rig.type','Τύπος'],edRow.rig.type,'text','dl-type',true)}
+    ${inp(['rig.len','Μήκος'],edRow.rig.len,'decimal')}
+    ${inp(['rig.thick','Πάχος'],edRow.rig.thick,'decimal')}
+  </div></div>`;
+  PM.forEach(([k,lab,,,gc],pi)=>{
+    h+=`<div class="grp ${gc}"><h3>${lab}${pi>0?`<button class="copybtn" data-copy="${PM[pi-1][0]}>${k}">⇣ ίδιο με ${PM[pi-1][1].split(' ')[0].toLowerCase()}</button>`:''}</h3><div class="gb">`;
+    PMF.forEach(([f,fl,mode])=>{const list=f==='bait'?'dl-bait':f==='fish'?'dl-fish':f==='flotter'?'dl-flotter':'';h+=inp([k+'.'+f,fl],edRow[k][f],mode,list,f==='fish')});
+    h+=`</div></div>`;
+  });
+  h+=`<div class="btns"><button class="btn g" data-act="saverow">Αποθήκευση</button></div>`;
+  if(idx!=null)h+=`<div class="btns"><button class="btn w" data-act="duprow">Αντίγραφο ως νέα</button><button class="btn d" data-act="delrow">Διαγραφή</button></div>`;
+  h+=`</div>`;
+  const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
+}
+function closeSheet(){document.getElementById('sheet').classList.remove('open');document.getElementById('sheetBg').classList.remove('open')}
+function readEditor(){
+  document.querySelectorAll('#sheet [data-p]').forEach(el=>{const p=el.dataset.p.split('.');if(p.length===1)edRow[p[0]]=el.value.trim();else edRow[p[0]][p[1]]=el.value.trim()});
+}
+
+/* ---------- MENU ---------- */
+function openMenu(){
+  const s=view.name==='session';
+  let h=`<div class="sheet-h"><b>Μενού</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+  <div class="card"><b>Κενό έντυπο</b><p class="muted">Εκτύπωση του εντύπου χωρίς στοιχεία, για συμπλήρωση με το χέρι.</p><button class="btn p" data-act="printblank">🖨 Εκτύπωση κενού</button></div>
+  <div class="card"><b>Αντίγραφο ασφαλείας</b><p class="muted">Τα δεδομένα μένουν μόνο σε αυτή τη συσκευή. Κράτα αντίγραφο σε αρχείο.</p>
+  <div class="btns"><button class="btn p" data-act="export">⬇ Αποθήκευση</button><button class="btn w" data-act="import">⬆ Εισαγωγή</button></div></div>
+  ${sessions.length?`<div class="card"><b>Όλες οι προπονήσεις σε Excel</b><p class="muted">Ένα CSV με όλες τις καταγραφές, για στατιστικά.</p><button class="btn w" data-act="csvall">⬇ CSV όλων</button></div>`:''}
+  <p class="muted" style="text-align:center">Σύλλογος Τρίτων · Έκδοση ${APP_VERSION}</p></div>`;
+  const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');
+}
+
+/* ---------- EXPORT ---------- */
+function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function csvCell(v){v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function csvFor(list){
+  const head=['Νο','Πεδίο','Ημερομηνία','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
+  PM.forEach(([,lab])=>{const n=lab.split(' ')[0];PMF.forEach(([,fl])=>head.push(n+' '+fl))});
+  const lines=[head.map(csvCell).join(';')];
+  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));lines.push(c.map(csvCell).join(';'))}));
+  return '﻿'+lines.join('\r\n');
+}
+
+/* ---------- EVENTS ---------- */
+document.getElementById('fab').onclick=()=>{
+  if(view.name==='home'){
+    const maxNo=sessions.reduce((m,s)=>Math.max(m,Number(s.no)||0),0);
+    const last=[...sessions].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
+    const s={id:uid(),no:String(maxNo+1),field:last?last.field:'',date:today(),rows:[]};
+    sessions.push(s);save();view={name:'session',id:s.id,table:false};render();
+  }else openEditor(null);
+};
+document.getElementById('backBtn').onclick=()=>{view={name:'home'};render();window.scrollTo(0,0)};
+document.getElementById('menuBtn').onclick=openMenu;
+document.getElementById('sheetBg').onclick=closeSheet;
+
+document.getElementById('app').addEventListener('click',e=>{
+  const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false};render();window.scrollTo(0,0);return}
+  const ed=e.target.closest('[data-edit]');if(ed){openEditor(Number(ed.dataset.edit));return}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const s=cur();
+  switch(a.dataset.act){
+    case'cards':view.table=false;render();break;
+    case'table':view.table=true;render();break;
+    case'print':printSession(s);break;
+    case'csv':download(`proponisi_${s.no||''}_${s.date||''}.csv`,csvFor([s]),'text/csv;charset=utf-8');break;
+    case'delsess':if(confirm(`Διαγραφή της προπόνησης Νο ${s.no} με ${s.rows.length} καταγραφές; Δεν αναιρείται.`)){sessions=sessions.filter(x=>x.id!==s.id);save();view={name:'home'};render();toast('Διαγράφηκε')}break;
+  }
+});
+document.getElementById('app').addEventListener('change',e=>{
+  const k=e.target.dataset.h;if(!k)return;const s=cur();s[k]=e.target.value.trim();save();
+  document.getElementById('title').innerHTML=`Προπόνηση Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;refreshDatalists();
+});
+
+document.getElementById('sheet').addEventListener('click',e=>{
+  const c=e.target.closest('[data-copy]');
+  if(c){const[from,to]=c.dataset.copy.split('>');readEditor();const keepFish=edRow[to].fish;edRow[to]={...edRow[from],fish:keepFish};
+    PMF.forEach(([f])=>{const el=document.querySelector(`#sheet [data-p="${to}.${f}"]`);if(el)el.value=edRow[to][f]});return}
+  const a=e.target.closest('[data-act]');if(!a)return;
+  const s=cur();
+  switch(a.dataset.act){
+    case'close':closeSheet();break;
+    case'now':document.querySelector('#sheet [data-p="t"]').value=nowTime();break;
+    case'saverow':readEditor();if(edIdx==null)s.rows.push(edRow);else s.rows[edIdx]=edRow;save();closeSheet();render();toast('Αποθηκεύτηκε');break;
+    case'duprow':readEditor();{const n=JSON.parse(JSON.stringify(edRow));n.t=nowTime();PM.forEach(([k])=>n[k].fish='');s.rows.push(n);save();closeSheet();render();toast('Προστέθηκε #'+s.rows.length)}break;
+    case'delrow':if(confirm('Διαγραφή της καταγραφής #'+(edIdx+1)+';')){s.rows.splice(edIdx,1);save();closeSheet();render();toast('Διαγράφηκε')}break;
+    case'printblank':closeSheet();printSession(null);break;
+    case'export':download(`katagrafi-proponisis-backup-${today()}.json`,JSON.stringify({app:'katagrafi-proponisis',version:APP_VERSION,exported:new Date().toISOString(),sessions},null,1),'application/json');toast('Αποθηκεύτηκε αρχείο');break;
+    case'import':document.getElementById('importFile').click();break;
+    case'csvall':download(`proponiseis_oles_${today()}.csv`,csvFor(sessions),'text/csv;charset=utf-8');break;
+  }
+});
+
+document.getElementById('importFile').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{
+    const d=JSON.parse(rd.result);const list=Array.isArray(d)?d:d.sessions;if(!Array.isArray(list))throw 0;
+    let add=0,upd=0;
+    list.forEach(s=>{if(!s||!Array.isArray(s.rows))return;const i=sessions.findIndex(x=>x.id===s.id);if(i>=0){sessions[i]=s;upd++}else{sessions.push(s);add++}});
+    save();closeSheet();view={name:'home'};render();toast(`Εισαγωγή: ${add} νέες, ${upd} ενημερώθηκαν`);
+  }catch(err){alert('Μη έγκυρο αρχείο αντιγράφου.')}};
+  rd.readAsText(f);e.target.value='';
+};
+
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
+render();
+</script>
+</body>
+</html>
