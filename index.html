@@ -180,14 +180,16 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.0.4';
+const APP_VERSION='1.0.6';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
 const PMF=[['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','numeric'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
 
 let sessions=load();
-const DEF_FISH=['Σαργός','Μουρμούρα','Σπάρος','Γόπα','Μελανούρι','Λυθρίνι','Κέφαλος','Χειλού','Σάλπα','Σαφρίδι','Κολιός','Τσιπούρα'];
+const DEF_FISH=['Σαργός','Μουρμούρα','Σπάρος','Γόπα','Μελανούρι','Λυθρίνι','Κέφαλος','Χειλού','Σάλπα','Σαφρίδι','Κολιός','Τσιπούρα','Λίτσα','Λαγοκέφαλος','Δράκαινα','Πέρκα'];
+const NOFISH='Χωρίς ψάρι';
+const DEF_BAIT=['Ακροβάτης','Γαρίδα','Σαρδέλα'];
 function lsGet(k,d){try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 let catchKey=null;
@@ -204,11 +206,12 @@ function toast(t){const e=document.getElementById('toast');e.classList.remove('u
 function cur(){return sessions.find(s=>s.id===view.id)}
 function emptyPM(){return{len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
 function emptyRow(){return{t:nowTime(),rig:{type:'',len:'',thick:''},up:emptyPM(),mid:emptyPM(),low:emptyPM()}}
-function fishCount(s){let n=0;s.rows.forEach(r=>PM.forEach(([k])=>{if((r[k].fish||'').trim())n++}));return n}
+function fishCount(s){let n=0;s.rows.forEach(r=>PM.forEach(([k])=>{const f=(r[k].fish||'').trim();if(f&&f!==NOFISH)n++}));return n}
 
 function refreshDatalists(){
   const sets={type:new Set(),bait:new Set(),fish:new Set(),flotter:new Set(),field:new Set()};
   sessions.forEach(s=>{if(s.field)sets.field.add(s.field);s.rows.forEach(r=>{if(r.rig.type)sets.type.add(r.rig.type);PM.forEach(([k])=>{['bait','fish','flotter'].forEach(f=>{if(r[k][f])sets[f].add(r[k][f])})})})});
+  DEF_FISH.forEach(f=>sets.fish.add(f));sets.fish.add(NOFISH);
   for(const k in sets){document.getElementById('dl-'+k).innerHTML=[...sets[k]].sort((a,b)=>a.localeCompare(b,'el')).map(v=>`<option value="${esc(v)}">`).join('')}
 }
 
@@ -313,7 +316,9 @@ function openEditor(idx){
   </div></div>`;
   PM.forEach(([k,lab,,,gc],pi)=>{
     h+=`<div class="grp ${gc}"><h3>${lab}${pi>0?`<button class="copybtn" data-copy="${PM[pi-1][0]}>${k}">⇣ ίδιο με ${PM[pi-1][1].split(' ')[0].toLowerCase()}</button>`:''}</h3><div class="gb">`;
-    PMF.forEach(([f,fl,mode])=>{const list=f==='bait'?'dl-bait':f==='fish'?'dl-fish':f==='flotter'?'dl-flotter':'';h+=inp([k+'.'+f,fl],edRow[k][f],mode,list,f==='fish')});
+    PMF.forEach(([f,fl,mode])=>{
+      if(f==='bait'){h+=baitSelect(k,edRow[k].bait);return}
+      const list=f==='bait'?'dl-bait':f==='fish'?'dl-fish':f==='flotter'?'dl-flotter':'';h+=inp([k+'.'+f,fl],edRow[k][f],mode,list,f==='fish')});
     h+=`</div></div>`;
   });
   h+=`<div class="btns"><button class="btn g" data-act="saverow">Αποθήκευση</button></div>`;
@@ -326,16 +331,25 @@ function readEditor(){
   document.querySelectorAll('#sheet [data-p]').forEach(el=>{const p=el.dataset.p.split('.');if(p.length===1)edRow[p[0]]=el.value.trim();else edRow[p[0]][p[1]]=el.value.trim()});
 }
 
+function baitOptions(cur){
+  const used=new Set();sessions.forEach(ss=>ss.rows.forEach(r=>PM.forEach(([kk])=>{const b=(r[kk].bait||'').trim();if(b)used.add(b)})));
+  const extra=[...used].filter(b=>!DEF_BAIT.includes(b)).sort((a,b)=>a.localeCompare(b,'el'));
+  const all=[...DEF_BAIT,...extra];if(cur&&!all.includes(cur))all.push(cur);
+  return all;
+}
+function baitSelect(k,cur){
+  return `<div><label class="f">Δόλωμα</label><select class="inp" data-p="${k}.bait" data-bait="1"><option value="">—</option>${baitOptions(cur).map(b=>`<option${b===cur?' selected':''}>${esc(b)}</option>`).join('')}<option value="__other">Άλλο…</option></select></div>`;
+}
 /* ---------- QUICK CATCH ---------- */
 function openCatch(k){
   catchKey=k;
   const lab=PM.find(x=>x[0]===k)[1];
   const hist={};
-  sessions.forEach(ss=>ss.rows.forEach(r=>PM.forEach(([kk])=>{const f=(r[kk].fish||'').trim();if(f)hist[f]=(hist[f]||0)+1})));
-  const list=[...Object.keys(hist).sort((a,b)=>hist[b]-hist[a]),...DEF_FISH].filter((v,i,a)=>a.indexOf(v)===i).slice(0,16);
+  sessions.forEach(ss=>ss.rows.forEach(r=>PM.forEach(([kk])=>{const f=(r[kk].fish||'').trim();if(f&&f!==NOFISH)hist[f]=(hist[f]||0)+1})));
+  const list=[...Object.keys(hist).sort((a,b)=>hist[b]-hist[a]),...DEF_FISH].filter((v,i,a)=>a.indexOf(v)===i).slice(0,24);
   const s=cur(),last=s.rows[s.rows.length-1];
   const h=`<div class="sheet-h"><b>🐟 ${lab}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
-    <div class="fishchips">${list.map(f=>`<button data-fish="${esc(f)}">${esc(f)}</button>`).join('')}</div>
+    <div class="fishchips">${list.map(f=>`<button data-fish="${esc(f)}">${esc(f)}</button>`).join('')}<button data-fish="${NOFISH}" style="grid-column:1/-1;background:#eee">${NOFISH}</button></div>
     <div class="grid3" style="grid-template-columns:1fr auto;margin-bottom:10px"><input class="inp" id="fishOther" list="dl-fish" placeholder="Άλλο ψάρι…"><button class="btn p" data-act="fishother">OK</button></div>
     <p class="muted">${last?'Η αρματωσιά και τα παράμαλα αντιγράφονται από την καταγραφή #'+s.rows.length+'.':'Πρώτη καταγραφή: συμπλήρωσε μετά αρματωσιά και παράμαλα.'}</p></div>`;
   const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
@@ -344,10 +358,10 @@ function addCatch(fish){
   fish=(fish||'').trim();if(!fish)return;
   const s=cur(),k=catchKey,t=nowTime(),before=JSON.stringify(s.rows);
   const last=s.rows[s.rows.length-1];let n;
-  if(last&&last.t===t&&!last[k].fish){last[k].fish=fish;n=s.rows.length}
+  if(last&&!(last[k].fish||'').trim()){last[k].fish=fish;n=s.rows.length}
   else{const r=last?JSON.parse(JSON.stringify(last)):emptyRow();r.t=t;PM.forEach(([kk])=>r[kk].fish='');r[k].fish=fish;s.rows.push(r);n=s.rows.length}
   save();closeSheet();render();
-  undoToast(`🐟 ${fish} → #${n}`,()=>{s.rows=JSON.parse(before);save();render();toast('Αναιρέθηκε')});
+  undoToast(`${fish===NOFISH?'':'🐟 '}${fish} → #${n}`,()=>{s.rows=JSON.parse(before);save();render();toast('Αναιρέθηκε')});
   if(navigator.vibrate)navigator.vibrate(40);
 }
 function undoToast(msg,fn){
@@ -424,7 +438,7 @@ document.getElementById('sheet').addEventListener('click',e=>{
   const fb=e.target.closest('[data-fish]');if(fb){addCatch(fb.dataset.fish);return}
   const c=e.target.closest('[data-copy]');
   if(c){const[from,to]=c.dataset.copy.split('>');readEditor();const keepFish=edRow[to].fish;edRow[to]={...edRow[from],fish:keepFish};
-    PMF.forEach(([f])=>{const el=document.querySelector(`#sheet [data-p="${to}.${f}"]`);if(el)el.value=edRow[to][f]});return}
+    PMF.forEach(([f])=>{const el=document.querySelector(`#sheet [data-p="${to}.${f}"]`);if(!el)return;if(el.tagName==='SELECT'&&edRow[to][f]&&![...el.options].some(o=>o.value===edRow[to][f])){const o=document.createElement('option');o.textContent=edRow[to][f];el.insertBefore(o,el.lastElementChild)}el.value=edRow[to][f]});return}
   const a=e.target.closest('[data-act]');if(!a)return;
   const s=cur();
   switch(a.dataset.act){
@@ -442,6 +456,13 @@ document.getElementById('sheet').addEventListener('click',e=>{
   }
 });
 
+document.getElementById('sheet').addEventListener('change',e=>{
+  const sel=e.target.closest('[data-bait]');if(!sel||sel.value!=='__other')return;
+  const v=(prompt('Γράψε το δόλωμα:')||'').trim();
+  if(!v){sel.value='';return}
+  if(![...sel.options].some(o=>o.value===v)){const o=document.createElement('option');o.textContent=v;sel.insertBefore(o,sel.lastElementChild)}
+  sel.value=v;
+});
 document.getElementById('importFile').onchange=e=>{
   const f=e.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{
