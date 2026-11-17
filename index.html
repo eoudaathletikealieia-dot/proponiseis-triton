@@ -103,6 +103,12 @@ table.form tbody td.ttl{text-align:left}
 .catchbar button:active{transform:scale(.96)}
 .totals{display:flex;justify-content:space-between;align-items:center;font-weight:800;margin:0 2px 8px}
 .totals b{font-size:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cond summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}
+.cond summary::-webkit-details-marker{display:none}
+.cond summary b:after{content:' ▾'}
+.cond a{color:#0b57d0;font-weight:700}
+.condline{border:1px solid #444;border-top:0;padding:3px 10px;font-size:10px;margin:-8px 0 8px 34px;background:#fff;font-weight:700}
 .fishchips{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 .fishchips button{min-height:60px;border:2px solid #000;border-radius:12px;background:#fff;font-size:18px;font-weight:800;color:#000}
 .fishchips button:active{background:#FFE600}
@@ -180,7 +186,7 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.0.8';
+const APP_VERSION='1.1.0';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
@@ -242,6 +248,7 @@ function render(){
     <div><label class="f">Ημερομηνία</label><input class="inp" type="date" data-h="date" value="${esc(s.date)}"></div>
     <div class="full"><label class="f">Πεδίο</label><input class="inp" list="dl-field" data-h="field" value="${esc(s.field)}"></div>
   </div></div>
+  ${condCard(s)}
   <div class="totals"><span>${s.rows.length} καταγραφές</span><span>Ψάρια: <b>🐟 ${fishCount(s)}</b></span></div>
   <div class="catchbar">
     <button class="cu" data-catch="up"><big>🐟</big>ΠΑΝΩ</button>
@@ -290,7 +297,7 @@ function printSession(s){
   const PER=25,rows=s?s.rows.length:0,pages=Math.max(1,Math.ceil(rows/PER));
   let h='';
   for(let p=0;p<pages;p++){
-    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
+    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div><div class="condline">ΚΑΙΡΟΣ ${s&&condText(s)?esc(condText(s)):'....................................................................................'} &nbsp;&nbsp; ΣΤΙΓΜΑ ${s&&s.lat?gpsText(s):'..................................................'}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
   }
   document.getElementById('printArea').innerHTML=h;
   setTimeout(()=>window.print(),100);
@@ -319,6 +326,7 @@ function openEditor(idx){
     h+=`<div class="grp ${gc}"><h3>${lab}${pi>0?`<button class="copybtn" data-copy="${PM[pi-1][0]}>${k}">⇣ ίδιο με ${PM[pi-1][1].split(' ')[0].toLowerCase()}</button>`:''}</h3><div class="gb">`;
     PMF.forEach(([f,fl,mode])=>{
       if(f==='bait'){h+=baitSelect(k,edRow[k].bait);return}
+      if(f==='fish'){h+=fishSelect(k,edRow[k].fish);return}
       const list=f==='bait'?'dl-bait':f==='fish'?'dl-fish':f==='flotter'?'dl-flotter':'';h+=inp([k+'.'+f,fl],edRow[k][f],mode,list,f==='fish')});
     h+=`</div></div>`;
   });
@@ -341,6 +349,59 @@ function baitOptions(cur){
 function baitSelect(k,cur){
   return `<div><label class="f">Δόλωμα</label><select class="inp" data-p="${k}.bait" data-bait="1"><option value="">—</option>${baitOptions(cur).map(b=>`<option${b===cur?' selected':''}>${esc(b)}</option>`).join('')}<option value="__other">Άλλο…</option></select></div>`;
 }
+function fishSelect(k,cur){
+  const used=new Set();sessions.forEach(ss=>ss.rows.forEach(r=>PM.forEach(([kk])=>{const f=(r[kk].fish||'').trim();if(f&&f!==NOFISH)used.add(f)})));
+  const all=[...new Set([...DEF_FISH,...used])].sort((a,b)=>a.localeCompare(b,'el'));
+  if(cur&&cur!==NOFISH&&!all.includes(cur))all.push(cur);
+  return `<div class="full"><label class="f">Ψάρι</label><select class="inp" data-p="${k}.fish" data-bait="1"><option value="">—</option><option${cur===NOFISH?' selected':''}>${NOFISH}</option>${all.map(f=>`<option${f===cur?' selected':''}>${esc(f)}</option>`).join('')}<option value="__other">Άλλο…</option></select></div>`;
+}
+/* ---------- CONDITIONS & GPS ---------- */
+const WDIR=['Άπνοια','Β','ΒΑ','Α','ΝΑ','Ν','ΝΔ','Δ','ΒΔ'];
+const SEA=['Λάδι','Ήρεμη','Λίγο κυματισμός','Κυματισμός','Φουρτούνα'];
+const SKY=['Ηλιοφάνεια','Λίγα σύννεφα','Συννεφιά','Ομίχλη','Ψιχάλα','Βροχή','Καταιγίδα'];
+function opt(list,cur){const l=cur&&!list.includes(cur)?[...list,cur]:list;return '<option value="">—</option>'+l.map(v=>`<option${v===cur?' selected':''}>${esc(v)}</option>`).join('')}
+function hasCond(s){return !!(s.wind||s.bft||s.sea||s.sky||s.temp||s.lat)}
+function condText(s){
+  const w=[s.wind,s.bft!==undefined&&s.bft!==''?s.bft+' Bf':''].filter(Boolean).join(' ');
+  return [w&&('Άνεμος '+w),s.sea&&('Θάλασσα '+s.sea),s.sky,s.temp&&(s.temp+'°C')].filter(Boolean).join(' · ');
+}
+function gpsText(s){return s.lat?(Number(s.lat).toFixed(5)+', '+Number(s.lon).toFixed(5)):''}
+function condCard(s){
+  const open=view.cond||!hasCond(s)?'open':'';
+  return `<details class="card cond" ${open} data-cond="1"><summary><b>🌤 Καιρός & 📍 Στίγμα</b><span class="muted">${esc(condText(s)||'')}${s.lat?' · 📍':''}</span></summary>
+  <div class="btns" style="margin:10px 0"><button class="btn g" data-act="autocond">📍 Στίγμα + καιρός τώρα</button></div>
+  <div class="grid2">
+    <div><label class="f">Άνεμος (κατεύθυνση)</label><select class="inp" data-h="wind">${opt(WDIR,s.wind)}</select></div>
+    <div><label class="f">Ένταση (Μποφόρ)</label><select class="inp" data-h="bft">${opt(['0','1','2','3','4','5','6','7','8','9'],s.bft)}</select></div>
+    <div><label class="f">Θάλασσα</label><select class="inp" data-h="sea">${opt(SEA,s.sea)}</select></div>
+    <div><label class="f">Ουρανός</label><select class="inp" data-h="sky">${opt(SKY,s.sky)}</select></div>
+    <div><label class="f">Θερμοκρασία °C</label><input class="inp" inputmode="decimal" data-h="temp" value="${esc(s.temp||'')}"></div>
+    <div><label class="f">Στίγμα</label><div class="inp" style="display:flex;align-items:center;font-size:14px">${s.lat?`<a href="https://maps.google.com/?q=${s.lat},${s.lon}" target="_blank" rel="noopener">${gpsText(s)}</a>`:'<span class="muted">—</span>'}</div></div>
+  </div>
+  ${s.lat?`<div class="btns"><button class="btn w" data-act="gpsclear">Διαγραφή στίγματος</button></div>`:''}
+  <p class="muted">Το κουμπί παίρνει το στίγμα από το GPS και τον καιρό από το internet (Open-Meteo). Τη θάλασσα τη συμπληρώνεις εσύ. Όλα αλλάζουν και με το χέρι.</p>
+  </details>`;
+}
+function bftFromKmh(v){const t=[1,6,12,20,29,39,50,62,75,89,103,118];let b=0;while(b<t.length&&v>=t[b])b++;return b}
+function dirFromDeg(d,kmh){if(kmh<1)return'Άπνοια';return['Β','ΒΑ','Α','ΝΑ','Ν','ΝΔ','Δ','ΒΔ'][Math.round(d/45)%8]}
+function skyFromCode(c){if(c===0)return'Ηλιοφάνεια';if(c<=2)return'Λίγα σύννεφα';if(c===3)return'Συννεφιά';if(c===45||c===48)return'Ομίχλη';if(c>=51&&c<=57)return'Ψιχάλα';if(c>=95)return'Καταιγίδα';if(c>=61)return'Βροχή';return''}
+function autoCond(){
+  const s=cur();
+  if(!navigator.geolocation){toast('Δεν υπάρχει GPS σε αυτόν τον browser');return}
+  toast('Λήψη στίγματος…');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    s.lat=pos.coords.latitude.toFixed(6);s.lon=pos.coords.longitude.toFixed(6);save();view.cond=true;render();toast('Στίγμα OK · λήψη καιρού…');
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=auto`;
+    fetch(u).then(r=>r.json()).then(d=>{
+      const c=d.current||{};const kmh=Number(c.wind_speed_10m)||0;
+      s.wind=dirFromDeg(Number(c.wind_direction_10m)||0,kmh);s.bft=String(bftFromKmh(kmh));
+      if(c.temperature_2m!=null)s.temp=String(Math.round(c.temperature_2m));
+      const sk=skyFromCode(Number(c.weather_code));if(sk)s.sky=sk;
+      save();render();toast('Καιρός OK');
+    }).catch(()=>toast('Χωρίς internet: ο καιρός συμπληρώνεται με το χέρι'));
+  },err=>{toast(err.code===1?'Δεν δόθηκε άδεια τοποθεσίας':'Δεν βρέθηκε στίγμα')},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+
 /* ---------- QUICK CATCH ---------- */
 function openCatch(k){
   catchKey=k;
@@ -401,10 +462,10 @@ function openMenu(){
 function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function csvCell(v){v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csvFor(list){
-  const head=['Νο','Πεδίο','Ημερομηνία','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
+  const head=['Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Γ. πλάτος','Γ. μήκος','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
   PM.forEach(([,lab])=>{const n=lab.split(' ')[0];PMF.forEach(([,fl])=>head.push(n+' '+fl))});
   const lines=[head.map(csvCell).join(';')];
-  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));lines.push(c.map(csvCell).join(';'))}));
+  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.lat||'',s.lon||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));lines.push(c.map(csvCell).join(';'))}));
   return '﻿'+lines.join('\r\n');
 }
 
@@ -422,21 +483,24 @@ document.getElementById('menuBtn').onclick=openMenu;
 document.getElementById('sheetBg').onclick=closeSheet;
 
 document.getElementById('app').addEventListener('click',e=>{
-  const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false};render();window.scrollTo(0,0);return}
+  const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false,cond:false};render();window.scrollTo(0,0);return}
   const ct=e.target.closest('[data-catch]');if(ct){openCatch(ct.dataset.catch);return}
   const ed=e.target.closest('[data-edit]');if(ed){openEditor(Number(ed.dataset.edit));return}
   const a=e.target.closest('[data-act]');if(!a)return;
   const s=cur();
   switch(a.dataset.act){
     case'cards':view.table=false;render();break;
+    case'autocond':autoCond();break;
+    case'gpsclear':delete s.lat;delete s.lon;save();view.cond=true;render();break;
     case'table':view.table=true;render();break;
     case'print':printSession(s);break;
     case'csv':download(`proponisi_${s.no||''}_${s.date||''}.csv`,csvFor([s]),'text/csv;charset=utf-8');break;
     case'delsess':if(confirm(`Διαγραφή της προπόνησης Νο ${s.no} με ${s.rows.length} καταγραφές; Δεν αναιρείται.`)){sessions=sessions.filter(x=>x.id!==s.id);save();view={name:'home'};render();toast('Διαγράφηκε')}break;
   }
 });
+document.getElementById('app').addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('details[data-cond]'))view.cond=e.target.open},true);
 document.getElementById('app').addEventListener('change',e=>{
-  const k=e.target.dataset.h;if(!k)return;const s=cur();s[k]=e.target.value.trim();save();
+  const k=e.target.dataset.h;if(!k)return;const s=cur();s[k]=e.target.value.trim();save();if(e.target.closest('[data-cond]')){view.cond=true;const sm=e.target.closest('details').querySelector('summary .muted');if(sm)sm.textContent=condText(s)+(s.lat?' · 📍':'');}
   document.getElementById('title').innerHTML=`Προπόνηση Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;refreshDatalists();
 });
 
@@ -464,7 +528,7 @@ document.getElementById('sheet').addEventListener('click',e=>{
 
 document.getElementById('sheet').addEventListener('change',e=>{
   const sel=e.target.closest('[data-bait]');if(!sel||sel.value!=='__other')return;
-  const v=(prompt('Γράψε το δόλωμα:')||'').trim();
+  const v=(prompt(sel.dataset.p.endsWith('fish')?'Γράψε το ψάρι:':'Γράψε το δόλωμα:')||'').trim();
   if(!v){sel.value='';return}
   if(![...sel.options].some(o=>o.value===v)){const o=document.createElement('option');o.textContent=v;sel.insertBefore(o,sel.lastElementChild)}
   sel.value=v;
