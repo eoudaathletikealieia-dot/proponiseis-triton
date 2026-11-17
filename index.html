@@ -192,7 +192,7 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.2.0';
+const APP_VERSION='1.2.2';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
@@ -219,7 +219,8 @@ function toast(t){const e=document.getElementById('toast');e.classList.remove('u
 function cur(){return sessions.find(s=>s.id===view.id)}
 function emptyPM(){return{len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
 function emptyRow(){return{t:nowTime(),rig:{type:'',len:'',thick:''},up:emptyPM(),mid:emptyPM(),low:emptyPM(),w:{},note:''}}
-const WK=['wind','bft','sea','sky','temp'];
+const WK=['wind','bft','sea','sky','temp','pres','ptr'];
+const PTR=['↑ Ανεβαίνει','→ Σταθερό','↓ Πέφτει'];
 function sessW(s){const o={};WK.forEach(k=>o[k]=s[k]||'');return o}
 function emptyW(w){return !w||WK.every(k=>!w[k])}
 function prepNewRow(r,s){r.t=nowTime();PM.forEach(([k])=>r[k].fish='');r.note='';if(emptyW(r.w))r.w=sessW(s);return r}
@@ -232,9 +233,9 @@ function moonInfo(dateStr){
   const i=Math.floor((age/syn)*8+0.5)%8;
   const names=['Νέα Σελήνη','Αύξων μηνίσκος','Πρώτο τέταρτο','Αύξουσα αμφίκυρτη','Πανσέληνος','Φθίνουσα αμφίκυρτη','Τελευταίο τέταρτο','Φθίνων μηνίσκος'];
   const em=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
-  return{name:names[i],emoji:em[i],ill,age:Math.round(age)};
+  return{name:names[i],emoji:em[i],ill,age:Math.round(age),day:Math.floor(age)+1};
 }
-function moonText(s){const mo=moonInfo(s&&s.date);return mo?`${mo.name} (${mo.ill}%)`:''}
+function moonText(s){const mo=moonInfo(s&&s.date);return mo?`${mo.name} · ${mo.day}η ημέρα (${mo.ill}%)`:''}
 function fishCount(s){let n=0;s.rows.forEach(r=>PM.forEach(([k])=>{const f=(r[k].fish||'').trim();if(f&&f!==NOFISH)n++}));return n}
 
 function refreshDatalists(){
@@ -353,6 +354,8 @@ function openEditor(idx){
     <div><label class="f">Θάλασσα</label><select class="inp" data-p="w.sea">${opt(SEA,edRow.w.sea)}</select></div>
     <div><label class="f">Ουρανός</label><select class="inp" data-p="w.sky">${opt(SKY,edRow.w.sky)}</select></div>
     <div><label class="f">Θερμοκρασία °C</label><input class="inp" inputmode="decimal" data-p="w.temp" value="${esc(edRow.w.temp||'')}"></div>
+    <div><label class="f">Βαρομετρικό (hPa)</label><input class="inp" inputmode="numeric" data-p="w.pres" value="${esc(edRow.w.pres||'')}"></div>
+    <div><label class="f">Τάση βαρομέτρου</label><select class="inp" data-p="w.ptr">${opt(PTR,edRow.w.ptr)}</select></div>
   </div></details>
   <div class="grp g-rig"><h3>ΑΡΜΑΤΩΣΙΑ</h3><div class="gb">
     ${inp(['rig.type','Τύπος'],edRow.rig.type,'text','dl-type',true)}
@@ -401,7 +404,7 @@ function opt(list,cur){const l=cur&&!list.includes(cur)?[...list,cur]:list;retur
 function hasCond(s){return !!(s.wind||s.bft||s.sea||s.sky||s.temp||s.lat)}
 function condText(s){
   const w=[s.wind,s.bft!==undefined&&s.bft!==''?s.bft+' Bf':''].filter(Boolean).join(' ');
-  return [w&&('Άνεμος '+w),s.sea&&('Θάλασσα '+s.sea),s.sky,s.temp&&(s.temp+'°C')].filter(Boolean).join(' · ');
+  return [w&&('Άνεμος '+w),s.sea&&('Θάλασσα '+s.sea),s.sky,s.temp&&(s.temp+'°C'),s.pres&&(s.pres+' hPa'+(s.ptr?' '+s.ptr.split(' ')[0]:''))].filter(Boolean).join(' · ');
 }
 function gpsText(s){return s.lat?(Number(s.lat).toFixed(5)+', '+Number(s.lon).toFixed(5)):''}
 function condCard(s){
@@ -414,10 +417,12 @@ function condCard(s){
     <div><label class="f">Θάλασσα</label><select class="inp" data-h="sea">${opt(SEA,s.sea)}</select></div>
     <div><label class="f">Ουρανός</label><select class="inp" data-h="sky">${opt(SKY,s.sky)}</select></div>
     <div><label class="f">Θερμοκρασία °C</label><input class="inp" inputmode="decimal" data-h="temp" value="${esc(s.temp||'')}"></div>
+    <div><label class="f">Βαρομετρικό (hPa)</label><input class="inp" inputmode="numeric" data-h="pres" value="${esc(s.pres||'')}"></div>
+    <div><label class="f">Τάση βαρομέτρου</label><select class="inp" data-h="ptr">${opt(PTR,s.ptr)}</select></div>
     <div><label class="f">Στίγμα</label><div class="inp" style="display:flex;align-items:center;font-size:14px">${s.lat?`<a href="https://maps.google.com/?q=${s.lat},${s.lon}" target="_blank" rel="noopener">${gpsText(s)}</a>`:'<span class="muted">—</span>'}</div></div>
   </div>
   ${s.lat?`<div class="btns"><button class="btn w" data-act="gpsclear">Διαγραφή στίγματος</button></div>`:''}
-  <div style="margin-top:10px"><label class="f">Φάση σελήνης</label><div class="inp" style="display:flex;align-items:center;gap:8px;font-weight:700">${(m=>m?`<span style="font-size:24px">${m.emoji}</span>${m.name} · ${m.ill}% φωτισμένη`:'—')(moonInfo(s.date))}</div></div>
+  <div style="margin-top:10px"><label class="f">Φάση σελήνης</label><div class="inp" style="display:flex;align-items:center;gap:8px;font-weight:700">${(m=>m?`<span style="font-size:24px">${m.emoji}</span>${m.name}<br>${m.day}η ημέρα σελήνης · ${m.ill}% φωτισμένη`:'—')(moonInfo(s.date))}</div></div>
   <div style="margin-top:8px"><label class="f">💬 Σχόλια προπόνησης</label><textarea class="inp" rows="3" data-h="note" placeholder="Γενικές παρατηρήσεις για την προπόνηση…">${esc(s.note||'')}</textarea></div>
   <p class="muted">Το κουμπί παίρνει το στίγμα από το GPS και τον καιρό από το internet (Open-Meteo). Τη θάλασσα τη συμπληρώνεις εσύ. Όλα αλλάζουν και με το χέρι.</p>
   </details>`;
@@ -426,9 +431,11 @@ function bftFromKmh(v){const t=[1,6,12,20,29,39,50,62,75,89,103,118];let b=0;whi
 function dirFromDeg(d,kmh){if(kmh<1)return'Άπνοια';return['Β','ΒΑ','Α','ΝΑ','Ν','ΝΔ','Δ','ΒΔ'][Math.round(d/45)%8]}
 function skyFromCode(c){if(c===0)return'Ηλιοφάνεια';if(c<=2)return'Λίγα σύννεφα';if(c===3)return'Συννεφιά';if(c===45||c===48)return'Ομίχλη';if(c>=51&&c<=57)return'Ψιχάλα';if(c>=95)return'Καταιγίδα';if(c>=61)return'Βροχή';return''}
 function fetchWeather(lat,lon){
-  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=auto`;
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m,pressure_msl&hourly=pressure_msl&past_hours=3&forecast_hours=1&wind_speed_unit=kmh&timezone=auto`;
   return fetch(u).then(r=>r.json()).then(d=>{const c=d.current||{};const kmh=Number(c.wind_speed_10m)||0;const o={wind:dirFromDeg(Number(c.wind_direction_10m)||0,kmh),bft:String(bftFromKmh(kmh))};
-    if(c.temperature_2m!=null)o.temp=String(Math.round(c.temperature_2m));const sk=skyFromCode(Number(c.weather_code));if(sk)o.sky=sk;return o});
+    if(c.temperature_2m!=null)o.temp=String(Math.round(c.temperature_2m));const sk=skyFromCode(Number(c.weather_code));if(sk)o.sky=sk;
+    if(c.pressure_msl!=null){o.pres=String(Math.round(c.pressure_msl));const hp=((d.hourly||{}).pressure_msl||[]).filter(x=>x!=null);if(hp.length>=2){const diff=c.pressure_msl-hp[0];o.ptr=diff>=1?PTR[0]:diff<=-1?PTR[2]:PTR[1]}}
+    return o});
 }
 function getPos(){return new Promise((ok,no)=>{if(!navigator.geolocation)return no({code:9});navigator.geolocation.getCurrentPosition(p=>ok([p.coords.latitude.toFixed(6),p.coords.longitude.toFixed(6)]),no,{enableHighAccuracy:true,timeout:20000,maximumAge:60000})})}
 function rowWeather(){
@@ -443,14 +450,7 @@ function autoCond(){
   toast('Λήψη στίγματος…');
   navigator.geolocation.getCurrentPosition(pos=>{
     s.lat=pos.coords.latitude.toFixed(6);s.lon=pos.coords.longitude.toFixed(6);save();view.cond=true;render();toast('Στίγμα OK · λήψη καιρού…');
-    const u=`https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&current=temperature_2m,weather_code,wind_speed_10m,wind_direction_10m&wind_speed_unit=kmh&timezone=auto`;
-    fetch(u).then(r=>r.json()).then(d=>{
-      const c=d.current||{};const kmh=Number(c.wind_speed_10m)||0;
-      s.wind=dirFromDeg(Number(c.wind_direction_10m)||0,kmh);s.bft=String(bftFromKmh(kmh));
-      if(c.temperature_2m!=null)s.temp=String(Math.round(c.temperature_2m));
-      const sk=skyFromCode(Number(c.weather_code));if(sk)s.sky=sk;
-      save();render();toast('Καιρός OK');
-    }).catch(()=>toast('Χωρίς internet: ο καιρός συμπληρώνεται με το χέρι'));
+    fetchWeather(s.lat,s.lon).then(o=>{Object.assign(s,o);save();render();toast('Καιρός OK')}).catch(()=>toast('Χωρίς internet: ο καιρός συμπληρώνεται με το χέρι'));
   },err=>{toast(err.code===1?'Δεν δόθηκε άδεια τοποθεσίας':'Δεν βρέθηκε στίγμα')},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
 }
 
@@ -514,11 +514,11 @@ function openMenu(){
 function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function csvCell(v){v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csvFor(list){
-  const head=['Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
+  const head=['Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Βαρομετρικό hPa','Τάση βαρομ.','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
   PM.forEach(([,lab])=>{const n=lab.split(' ')[0];PMF.forEach(([,fl])=>head.push(n+' '+fl))});
-  head.push('Καταγρ. άνεμος','Καταγρ. Μποφόρ','Καταγρ. θάλασσα','Καταγρ. ουρανός','Καταγρ. θερμ.','Σχόλια καταγραφής');
+  head.push('Καταγρ. άνεμος','Καταγρ. Μποφόρ','Καταγρ. θάλασσα','Καταγρ. ουρανός','Καταγρ. θερμ.','Καταγρ. βαρομ.','Καταγρ. τάση','Σχόλια καταγραφής');
   const lines=[head.map(csvCell).join(';')];
-  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.lat||'',s.lon||'',moonText(s),s.note||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))}));
+  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.pres||'',s.ptr||'',s.lat||'',s.lon||'',moonText(s),s.note||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))}));
   return '﻿'+lines.join('\r\n');
 }
 
