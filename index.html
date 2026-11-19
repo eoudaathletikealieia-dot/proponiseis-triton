@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Καταγραφή Προπόνησης · Σύλλογος Τρίτων</title>
+<title>Triton Fishing Book</title>
 <meta name="theme-color" content="#141414">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -11,7 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Προπόνηση">
+<meta name="apple-mobile-web-app-title" content="Triton Book">
 <style>
 :root{
   --navy:#141414; --gold:#C9A27E; --sand:#F3EEE7; --ink:#1b1b1b; --muted:#6b6b6b; --line:#d9d3c2;
@@ -108,6 +108,15 @@ body.sun .rnote{font-size:15px;color:#000;font-weight:600}
 .g-w h3{background:#E7E6E6} .g-w .gb{background:#f4f4f4}
 .g-w summary{list-style:none;cursor:pointer}.g-w summary::-webkit-details-marker{display:none}
 textarea.inp{resize:vertical;min-height:70px}
+.kindtabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.kindtabs button{border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:14px;min-height:64px;font-size:18px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.kindtabs button small{font-size:12px;font-weight:700;opacity:.7}
+.kindtabs button.on{background:var(--navy);color:var(--gold);box-shadow:inset 0 -4px 0 var(--gold)}
+body.sun .kindtabs button{border-color:#000;color:#000;font-size:20px}
+body.sun .kindtabs button.on{background:#000;color:#FFE600;box-shadow:inset 0 -5px 0 #FFE600}
+#lockScreen{position:fixed;inset:0;z-index:200;background:#141414;color:#fff;align-items:center;justify-content:center;padding:24px}
+.lockbox{width:100%;max-width:380px;text-align:center}
+.lockbox h2{color:var(--gold);margin:12px 0 6px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cond summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}
 .cond summary::-webkit-details-marker{display:none}
@@ -121,7 +130,7 @@ textarea.inp{resize:vertical;min-height:70px}
 .toast.undo{pointer-events:auto;white-space:nowrap;max-width:94vw;display:flex;gap:12px;align-items:center;padding:10px 12px 10px 18px;font-size:16px}
 .toast button{background:#FFE600;color:#000;border:0;border-radius:14px;padding:8px 12px;font-weight:900}
 /* sun mode: max contrast, big targets */
-body.sun{background:#fff;font-size:18px}
+body.sun{background:#fff;font-size:18px;min-height:100vh}
 body.sun .card,body.sun .row,body.sun .grp{border:2px solid #000;box-shadow:none}
 body.sun .muted{color:#222}
 body.sun label.f{color:#000;font-size:14px}
@@ -165,7 +174,7 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 <header>
   <button class="hbtn" id="backBtn" style="display:none">‹</button>
   <img src="logo.png" alt="Triton" class="hlogo">
-  <h1 id="title">Καταγραφή Προπόνησης<small>Σύλλογος Τρίτων</small></h1>
+  <h1 id="title">Triton Fishing Book<small>Σύλλογος Τρίτων</small></h1>
   <button class="hbtn" id="sunBtn" title="Εμφάνιση για ήλιο">☀️</button>
   <button class="hbtn" id="menuBtn">⋮</button>
 </header>
@@ -180,6 +189,17 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 <div class="sheet" id="sheet"></div>
 <div id="printArea"></div>
 <div class="toast" id="toast"></div>
+<div id="lockScreen" style="display:none">
+  <div class="lockbox">
+    <img src="logo.png" alt="Triton" style="width:120px;height:120px;border-radius:50%">
+    <h2>Triton Fishing Book</h2>
+    <p>Για αθλητές του Συλλόγου Τρίτων.<br>Γράψε τον αριθμό δελτίου σου.</p>
+    <input class="inp" id="cardIn" inputmode="numeric" autocomplete="off" placeholder="Αριθμός δελτίου ή κωδικός" style="text-align:center;font-size:24px;font-weight:800">
+    <button class="btn g" id="cardBtn" style="width:100%;margin-top:10px">Είσοδος</button>
+    <p id="lockMsg" style="color:#ffb4ab;font-weight:700;min-height:1.2em"></p>
+    <p class="muted" style="color:#aaa">Η πρώτη είσοδος θέλει internet. Μετά η εφαρμογή δουλεύει και χωρίς.</p>
+  </div>
+</div>
 <input type="file" id="importFile" accept=".json,application/json" style="display:none">
 
 <datalist id="dl-type"></datalist>
@@ -192,13 +212,19 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.2.2';
+const APP_VERSION='1.4.1';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
+const AUTH_URL='';   // ← σύνδεσμος της εφαρμογής ιστού Apps Script (…/exec)
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
 const PMF=[['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','numeric'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
 
 let sessions=load();
+const KINDS={training:{tab:'🎯 Προπόνηση',one:'Προπόνηση',acc:'προπόνηση',gen:'προπόνησης',newb:'+ Νέα προπόνηση',none:'Καμία προπόνηση ακόμη',print:'ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ',file:'proponisi'},
+             fishing:{tab:'🎣 Ψάρεμα',one:'Ψάρεμα',acc:'ψάρεμα',gen:'ψαρέματος',newb:'+ Νέο ψάρεμα',none:'Κανένα ψάρεμα ακόμη',print:'ΚΑΤΑΓΡΑΦΗ ΨΑΡΕΜΑΤΟΣ',file:'psarema'}};
+function kindOf(s){return s&&s.kind==='fishing'?'fishing':'training'}
+function K(s){return KINDS[s?kindOf(s):(homeKind||'training')]}
+let homeKind=null;
 const DEF_FISH=['Γερμανός','Γλώσσα','Γόπα','Γουρουνόψαρο','Γοφάρι','Γωβιός','Δράκαινα','Ζαργάνα','Κακαρέλος','Καπόνι','Κέφαλος','Κοκκάλι','Κοκοβιός','Κολιός','Κουτσομούρα','Λαγοκέφαλος','Λίτσα','Λούτσος','Λυθρίνι','Μαγιάτικο','Μελανούρι','Μένουλα','Μουγκρί','Μουρμούρα','Μπαρμπούνι','Μυλοκόπι','Μυτάκι','Παλαμίδα','Πέρκα','Ροφός','Σαλιάρα','Σαλούβαρδος','Σάλπα','Σαργός','Σαφρίδι','Σηκιός','Σκαθάρι','Σκαρμός','Σκάρος','Σκορπίνα','Σκουμπρί','Σμέρνα','Σπάρος','Στήρα','Συναγρίδα','Σφυρίδα','Τσέρουλα','Τσιπούρα','Φαγκρί','Χάνος','Χειλού','Χριστόψαρο'].sort((a,b)=>a.localeCompare(b,'el'));
 const NOFISH='Χωρίς ψάρι';
 const DEF_BAIT_TOP=['Ακροβάτης','Γαρίδα','Σαρδέλα'];
@@ -251,20 +277,25 @@ function render(){
   refreshDatalists();
   if(view.name==='home'){
     back.style.display='none';
-    title.innerHTML='Καταγραφή Προπόνησης<small>Σύλλογος Τρίτων</small>';
-    fab.textContent='+ Νέα προπόνηση';fab.style.display='';
-    if(!sessions.length){app.innerHTML=`<div class="empty"><div style="font-size:44px">🎣</div><p><b>Καμία προπόνηση ακόμη</b></p><p>Πάτα «+ Νέα προπόνηση» για να ξεκινήσεις.</p></div>`;return}
-    const list=[...sessions].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(Number(b.no)||0)-(Number(a.no)||0));
+    title.innerHTML='Triton Fishing Book<small>Σύλλογος Τρίτων</small>';
+    if(!homeKind)homeKind=lsGet('kp_kind','training');
+    const KD=KINDS[homeKind];
+    fab.textContent=KD.newb;fab.style.display='';
+    const tabs=`<div class="kindtabs">${Object.keys(KINDS).map(k=>`<button class="${k===homeKind?'on':''}" data-kind="${k}">${KINDS[k].tab}<small>${sessions.filter(s=>kindOf(s)===k).length}</small></button>`).join('')}</div>`;
+    const mine=sessions.filter(s=>kindOf(s)===homeKind);
+    if(!mine.length){app.innerHTML=tabs+`<div class="empty"><div style="font-size:44px">${homeKind==='fishing'?'🎣':'🎯'}</div><p><b>${KD.none}</b></p><p>Πάτα «${KD.newb}» για να ξεκινήσεις.</p></div>`;return}
+    const list=[...mine].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(Number(b.no)||0)-(Number(a.no)||0));
     app.innerHTML=list.map(s=>`<div class="card sess" role="button" onclick="" data-open="${s.id}">
       <div class="no">${esc(s.no||'–')}</div>
       <div class="info"><b>${esc(s.field||'Χωρίς πεδίο')}</b><span class="muted">${fmtDate(s.date)}</span><br>
       <span class="pill">${s.rows.length} καταγραφές</span><span class="pill">🐟 ${fishCount(s)}</span></div>
       <div style="color:var(--muted);font-size:22px">›</div></div>`).join('');
+    app.innerHTML=tabs+app.innerHTML;
     return;
   }
   const s=cur();if(!s){view={name:'home'};return render()}
   back.style.display='';
-  title.innerHTML=`Προπόνηση Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;
+  title.innerHTML=`${K(s).one} Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;
   fab.textContent='+ Νέα καταγραφή';fab.style.display='';
   let h=`<div class="card"><div class="grid3">
     <div><label class="f">Νο</label><input class="inp" inputmode="numeric" data-h="no" value="${esc(s.no)}"></div>
@@ -292,7 +323,7 @@ function render(){
       const pm=PM.map(([k,lab,c])=>{const p=r[k];const parts=[p.len&&('Μ '+p.len),p.thick&&('Π '+p.thick),p.hook&&('#'+p.hook),p.flotter,p.bait].filter(Boolean);if(!parts.length&&!p.fish)return'';return`<div class="${c}"><b>${lab.split(' ')[0]}</b> ${esc(parts.join(' · '))}${p.fish?` <span class="fish">🐟 ${esc(p.fish)}</span>`:''}</div>`}).join('');
       return`<div class="row" role="button" onclick="" data-edit="${i}"><div class="lft">${i+1}<span>${esc(r.t)}</span></div><div class="body"><div class="rig">${esc(rig)}</div><div class="pm">${pm||'<span class="muted">Χωρίς παράμαλα</span>'}</div>${r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?`<div class="rnote">🌤 ${esc(condText(r.w))}</div>`:''}${r.note?`<div class="rnote">💬 ${esc(r.note)}</div>`:''}</div></div>`}).join('');
   }
-  h+=`<div class="btns" style="margin-top:18px"><button class="btn d" data-act="delsess">Διαγραφή προπόνησης</button></div>`;
+  h+=`<div class="btns" style="margin-top:18px"><button class="btn d" data-act="delsess">Διαγραφή ${K(s).gen}</button></div>`;
   app.innerHTML=h;
 }
 
@@ -319,17 +350,17 @@ function formTable(s,print,rowsFrom=0,rowsTo=null){
 function printNotes(s,from,to,last){
   if(!s)return'';const items=[];
   s.rows.slice(from,to).forEach((r,j)=>{const i=from+j;const w=r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?condText(r.w):'';if(w||r.note)items.push(`<b>#${i+1}</b> ${esc([w&&('Καιρός: '+w),r.note].filter(Boolean).join(' — '))}`)});
-  if(last&&s.note)items.unshift(`<b>Προπόνηση:</b> ${esc(s.note)}`);
+  if(last&&s.note)items.unshift(`<b>${K(s).one}:</b> ${esc(s.note)}`);
   return items.length?`<div class="pnotes"><b>ΣΗΜΕΙΩΣΕΙΣ</b><br>${items.join('<br>')}</div>`:'';
 }
 function printSession(s){
   const PER=25,rows=s?s.rows.length:0,pages=Math.max(1,Math.ceil(rows/PER));
   let h='';
   for(let p=0;p<pages;p++){
-    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div><div class="condline">ΚΑΙΡΟΣ ${s&&condText(s)?esc(condText(s)):'....................................................................................'} &nbsp;&nbsp; ΣΤΙΓΜΑ ${s&&s.lat?gpsText(s):'..................................................'} &nbsp;&nbsp; ΣΕΛΗΝΗ ${s&&s.date?moonText(s):'..............................'}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
+    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>${K(s).print} Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div><div class="condline">ΚΑΙΡΟΣ ${s&&condText(s)?esc(condText(s)):'....................................................................................'} &nbsp;&nbsp; ΣΤΙΓΜΑ ${s&&s.lat?gpsText(s):'..................................................'} &nbsp;&nbsp; ΣΕΛΗΝΗ ${s&&s.date?moonText(s):'..............................'}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
   }
   const nt=printNotes(s,0,s?s.rows.length:0,true);
-  if(nt)h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ Νο ${esc(s.no||'')}</span><span style="flex:1">ΠΕΔΙΟ ${esc(s.field||'')}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${fmtDate(s.date)}</span></div>${nt}</div>`;
+  if(nt)h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>${K(s).print} Νο ${esc(s.no||'')}</span><span style="flex:1">ΠΕΔΙΟ ${esc(s.field||'')}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${fmtDate(s.date)}</span></div>${nt}</div>`;
   document.getElementById('printArea').innerHTML=h;
   setTimeout(()=>window.print(),100);
 }
@@ -423,7 +454,7 @@ function condCard(s){
   </div>
   ${s.lat?`<div class="btns"><button class="btn w" data-act="gpsclear">Διαγραφή στίγματος</button></div>`:''}
   <div style="margin-top:10px"><label class="f">Φάση σελήνης</label><div class="inp" style="display:flex;align-items:center;gap:8px;font-weight:700">${(m=>m?`<span style="font-size:24px">${m.emoji}</span>${m.name}<br>${m.day}η ημέρα σελήνης · ${m.ill}% φωτισμένη`:'—')(moonInfo(s.date))}</div></div>
-  <div style="margin-top:8px"><label class="f">💬 Σχόλια προπόνησης</label><textarea class="inp" rows="3" data-h="note" placeholder="Γενικές παρατηρήσεις για την προπόνηση…">${esc(s.note||'')}</textarea></div>
+  <div style="margin-top:8px"><label class="f">💬 Σχόλια ${K(s).gen}</label><textarea class="inp" rows="3" data-h="note" placeholder="Γενικές παρατηρήσεις…">${esc(s.note||'')}</textarea></div>
   <p class="muted">Το κουμπί παίρνει το στίγμα από το GPS και τον καιρό από το internet (Open-Meteo). Τη θάλασσα τη συμπληρώνεις εσύ. Όλα αλλάζουν και με το χέρι.</p>
   </details>`;
 }
@@ -452,6 +483,72 @@ function autoCond(){
     s.lat=pos.coords.latitude.toFixed(6);s.lon=pos.coords.longitude.toFixed(6);save();view.cond=true;render();toast('Στίγμα OK · λήψη καιρού…');
     fetchWeather(s.lat,s.lon).then(o=>{Object.assign(s,o);save();render();toast('Καιρός OK')}).catch(()=>toast('Χωρίς internet: ο καιρός συμπληρώνεται με το χέρι'));
   },err=>{toast(err.code===1?'Δεν δόθηκε άδεια τοποθεσίας':'Δεν βρέθηκε στίγμα')},{enableHighAccuracy:true,timeout:20000,maximumAge:0});
+}
+
+/* ---------- ACCESS (card number) ---------- */
+function devId(){let d=lsGet('kp_dev','');if(!d){d=(crypto.randomUUID?crypto.randomUUID():(Date.now().toString(36)+Math.random().toString(36).slice(2))).replace(/[^A-Za-z0-9\-]/g,'');lsSet('kp_dev',d)}return d}
+function getAuth(){try{return JSON.parse(lsGet('kp_auth','null'))}catch(e){return null}}
+function authCall(card,pin,extra){const q=new URLSearchParams(Object.assign({card,dev:devId()},pin?{pin}:{},extra||{}));return fetch(`${AUTH_URL}?${q}`,{cache:'no-store'}).then(r=>r.json())}
+function adminCall(extra){const a=getAuth();return authCall(a.card,'',extra)}
+const AUTH_MSG={notfound:'Ο αριθμός δελτίου δεν βρέθηκε στη λίστα του συλλόγου.',inactive:'Το δελτίο δεν είναι ενεργό. Επικοινώνησε με τον σύλλογο.',otherdevice:'Το δελτίο έχει ήδη ενεργοποιηθεί σε άλλη συσκευή. Επικοινώνησε με τον υπεύθυνο του συλλόγου.',bad:'Συμπλήρωσε τον αριθμό δελτίου.',shortcode:'Ο κωδικός διαχειριστή πρέπει να έχει τουλάχιστον 8 ψηφία.',nosheet:'Πρόβλημα στη λίστα του συλλόγου.'};
+function showLogin(msg){
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('lockMsg').textContent=msg||'';
+}
+function hideLogin(){document.getElementById('lockScreen').style.display='none'}
+function doLogin(){
+  const card=document.getElementById('cardIn').value.replace(/\D/g,'');
+  const btn=document.getElementById('cardBtn');
+  if(!card){showLogin(AUTH_MSG.bad);return}
+  btn.disabled=true;btn.textContent='Έλεγχος…';
+  authCall(card).then(r=>{
+    if(r&&r.ok){const a={card,name:r.name||''};if(r.admin){a.admin=true}lsSet('kp_auth',JSON.stringify(a));hideLogin();render();toast('Καλώς ήρθες '+(r.name||''))}
+    else showLogin(AUTH_MSG[(r&&r.reason)]||'Δεν επιτρέπεται η πρόσβαση.');
+  }).catch(()=>showLogin('Χρειάζεται σύνδεση στο internet για την πρώτη είσοδο.')).finally(()=>{btn.disabled=false;btn.textContent='Είσοδος'});
+}
+function checkAuth(){
+  if(!AUTH_URL)return;
+  const a=getAuth();
+  if(!a){showLogin('');return}
+  authCall(a.card).then(r=>{
+    if(r&&r.ok){if(r.name&&r.name!==a.name){a.name=r.name;lsSet('kp_auth',JSON.stringify(a))}}
+    else if(r&&['notfound','inactive','otherdevice','shortcode'].includes(r.reason)){lsSet('kp_auth','null');showLogin(AUTH_MSG[r.reason])}
+  }).catch(()=>{});
+}
+
+/* ---------- ADMIN ---------- */
+let adminList=[];
+function openAdmin(){
+  const sh=document.getElementById('sheet');
+  sh.innerHTML=`<div class="sheet-h"><b>🛡 Διαχείριση αθλητών</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b" id="adminBody"><p class="muted">Φόρτωση…</p></div>`;
+  sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
+  loadAdmin();
+}
+function loadAdmin(){
+  adminCall({action:'list'}).then(r=>{if(!r.ok)throw r;adminList=r.list;drawAdmin()}).catch(e=>{const b=document.getElementById('adminBody');if(b)b.innerHTML=`<p>Δεν ήταν δυνατή η φόρτωση${e&&e.reason?' ('+esc(AUTH_MSG[e.reason]||e.reason)+')':' (χρειάζεται internet)'}.</p>`});
+}
+function drawAdmin(){
+  const b=document.getElementById('adminBody');if(!b)return;
+  const q=(document.getElementById('admQ')||{}).value||'';
+  const act=adminList.filter(x=>x.active).length,on=adminList.filter(x=>x.device).length;
+  const list=adminList.filter(x=>!q||x.name.toLowerCase().includes(q.toLowerCase())||x.card.includes(q)).sort((a,c)=>a.name.localeCompare(c.name,'el'));
+  b.innerHTML=`<div class="totals"><span>${adminList.length} αθλητές · ${act} ενεργοί</span><span>📱 ${on}</span></div>
+  <input class="inp" id="admQ" placeholder="Αναζήτηση ονόματος ή δελτίου" value="${esc(q)}" style="margin-bottom:10px">
+  ${list.map(x=>`<div class="card adm" style="padding:10px;margin-bottom:8px;${x.active?'':'opacity:.6'}">
+    <b>${esc(x.name)}${x.admin?' 🛡':''}</b><div class="muted">${x.admin?'Διαχειριστής':'Δελτίο '+esc(x.card)} · ${x.active?'✅ Ενεργός':'⛔ Ανενεργός'} · ${x.device?'📱 από '+esc(x.since):'χωρίς συσκευή'}</div>
+    <div class="btns" style="margin-top:6px">${x.device&&!x.admin?`<button class="btn w" data-adm="reset" data-t="${x.card}" style="min-height:42px;padding:8px">Ξεκλείδωμα συσκευής</button>`:''}
+    ${x.admin?'':`<button class="btn ${x.active?'d':'g'}" data-adm="toggle" data-t="${x.card}" style="min-height:42px;padding:8px">${x.active?'Απενεργοποίηση':'Ενεργοποίηση'}</button>`}</div></div>`).join('')}
+  <div class="card"><b>➕ Νέος αθλητής</b>
+    <div class="grid2" style="margin-top:8px"><input class="inp" id="admCard" inputmode="numeric" placeholder="Δελτίο"><input class="inp" id="admName" placeholder="Ονοματεπώνυμο"></div>
+    <div class="btns"><button class="btn p" data-adm="add">Προσθήκη</button></div></div>`;
+  const qi=document.getElementById('admQ');qi.oninput=()=>{const pos=qi.selectionStart;drawAdmin();const n=document.getElementById('admQ');n.focus();n.setSelectionRange(pos,pos)};
+}
+function admDo(action,target,extra){
+  const x=adminList.find(a=>a.card===target);
+  if(action==='reset'&&!confirm(`Ξεκλείδωμα συσκευής για ${x.name}; Θα μπορεί να μπει από νέο κινητό.`))return;
+  if(action==='toggle'&&!confirm(`${x.active?'Απενεργοποίηση':'Ενεργοποίηση'}: ${x.name};`))return;
+  toast('Αποστολή…');
+  adminCall(Object.assign({action,target},extra||{})).then(r=>{if(!r.ok)throw r;toast('OK');loadAdmin()}).catch(e=>toast(e&&e.reason==='exists'?'Το δελτίο υπάρχει ήδη':'Αποτυχία'+(e&&e.reason?' ('+e.reason+')':' – χρειάζεται internet')));
 }
 
 /* ---------- QUICK CATCH ---------- */
@@ -500,12 +597,13 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 function openMenu(){
   const s=view.name==='session';
   let h=`<div class="sheet-h"><b>Μενού</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+  ${getAuth()&&getAuth().name?`<div class="card"><b>👤 ${esc(getAuth().name)}${getAuth().admin?' 🛡':''}</b><p class="muted">${getAuth().admin?'Διαχειριστής':'Δελτίο '+esc(getAuth().card)}</p>${getAuth().admin?'<button class="btn p" data-act="admin" style="width:100%">🛡 Διαχείριση αθλητών</button>':''}</div>`:''}
   <div class="card"><b>Οθόνη πάντα αναμμένη</b><p class="muted">${'wakeLock' in navigator?'Η οθόνη δεν σβήνει όσο η εφαρμογή είναι ανοιχτή. Καταναλώνει περισσότερη μπαταρία.':'Δεν υποστηρίζεται σε αυτόν τον browser.'}</p>
   ${'wakeLock' in navigator?`<button class="btn ${lsGet('kp_wake','0')==='1'?'g':'w'}" data-act="wake" style="width:100%">${lsGet('kp_wake','0')==='1'?'ΝΑΙ – πάτα για ΟΧΙ':'ΟΧΙ – πάτα για ΝΑΙ'}</button>`:''}</div>
   <div class="card"><b>Κενό έντυπο</b><p class="muted">Εκτύπωση του εντύπου χωρίς στοιχεία, για συμπλήρωση με το χέρι.</p><button class="btn p" data-act="printblank">🖨 Εκτύπωση κενού</button></div>
   <div class="card"><b>Αντίγραφο ασφαλείας</b><p class="muted">Τα δεδομένα μένουν μόνο σε αυτή τη συσκευή. Κράτα αντίγραφο σε αρχείο.</p>
   <div class="btns"><button class="btn p" data-act="export">⬇ Αποθήκευση</button><button class="btn w" data-act="import">⬆ Εισαγωγή</button></div></div>
-  ${sessions.length?`<div class="card"><b>Όλες οι προπονήσεις σε Excel</b><p class="muted">Ένα CSV με όλες τις καταγραφές, για στατιστικά.</p><button class="btn w" data-act="csvall">⬇ CSV όλων</button></div>`:''}
+  ${sessions.length?`<div class="card"><b>Όλα (προπονήσεις & ψαρέματα) σε Excel</b><p class="muted">Ένα CSV με όλες τις καταγραφές, για στατιστικά.</p><button class="btn w" data-act="csvall">⬇ CSV όλων</button></div>`:''}
   <p class="muted" style="text-align:center">Σύλλογος Τρίτων · Έκδοση ${APP_VERSION}</p></div>`;
   const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');
 }
@@ -514,20 +612,21 @@ function openMenu(){
 function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function csvCell(v){v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csvFor(list){
-  const head=['Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Βαρομετρικό hPa','Τάση βαρομ.','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
+  const head=['Τύπος','Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Βαρομετρικό hPa','Τάση βαρομ.','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
   PM.forEach(([,lab])=>{const n=lab.split(' ')[0];PMF.forEach(([,fl])=>head.push(n+' '+fl))});
   head.push('Καταγρ. άνεμος','Καταγρ. Μποφόρ','Καταγρ. θάλασσα','Καταγρ. ουρανός','Καταγρ. θερμ.','Καταγρ. βαρομ.','Καταγρ. τάση','Σχόλια καταγραφής');
   const lines=[head.map(csvCell).join(';')];
-  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.pres||'',s.ptr||'',s.lat||'',s.lon||'',moonText(s),s.note||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))}));
+  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[K(s).one,s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.pres||'',s.ptr||'',s.lat||'',s.lon||'',moonText(s),s.note||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))}));
   return '﻿'+lines.join('\r\n');
 }
 
 /* ---------- EVENTS ---------- */
 document.getElementById('fab').onclick=()=>{
   if(view.name==='home'){
-    const maxNo=sessions.reduce((m,s)=>Math.max(m,Number(s.no)||0),0);
-    const last=[...sessions].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
-    const s={id:uid(),no:String(maxNo+1),field:last?last.field:'',date:today(),rows:[]};
+    const mine=sessions.filter(x=>kindOf(x)===homeKind);
+    const maxNo=mine.reduce((m,s)=>Math.max(m,Number(s.no)||0),0);
+    const last=[...mine].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
+    const s={id:uid(),kind:homeKind,no:String(maxNo+1),field:last?last.field:'',date:today(),rows:[]};
     sessions.push(s);save();view={name:'session',id:s.id,table:false};render();
   }else openEditor(null);
 };
@@ -537,6 +636,7 @@ document.getElementById('sheetBg').onclick=closeSheet;
 
 document.getElementById('app').addEventListener('click',e=>{
   const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false,cond:false};render();window.scrollTo(0,0);return}
+  const kt=e.target.closest('[data-kind]');if(kt){homeKind=kt.dataset.kind;lsSet('kp_kind',homeKind);render();return}
   const ct=e.target.closest('[data-catch]');if(ct){openCatch(ct.dataset.catch);return}
   const ed=e.target.closest('[data-edit]');if(ed){openEditor(Number(ed.dataset.edit));return}
   const a=e.target.closest('[data-act]');if(!a)return;
@@ -547,18 +647,19 @@ document.getElementById('app').addEventListener('click',e=>{
     case'gpsclear':delete s.lat;delete s.lon;save();view.cond=true;render();break;
     case'table':view.table=true;render();break;
     case'print':printSession(s);break;
-    case'csv':download(`proponisi_${s.no||''}_${s.date||''}.csv`,csvFor([s]),'text/csv;charset=utf-8');break;
-    case'delsess':if(confirm(`Διαγραφή της προπόνησης Νο ${s.no} με ${s.rows.length} καταγραφές; Δεν αναιρείται.`)){sessions=sessions.filter(x=>x.id!==s.id);save();view={name:'home'};render();toast('Διαγράφηκε')}break;
+    case'csv':download(`${K(s).file}_${s.no||''}_${s.date||''}.csv`,csvFor([s]),'text/csv;charset=utf-8');break;
+    case'delsess':if(confirm(`Διαγραφή: ${K(s).one} Νο ${s.no} με ${s.rows.length} καταγραφές; Δεν αναιρείται.`)){sessions=sessions.filter(x=>x.id!==s.id);save();view={name:'home'};render();toast('Διαγράφηκε')}break;
   }
 });
 document.getElementById('app').addEventListener('toggle',e=>{if(e.target.matches&&e.target.matches('details[data-cond]'))view.cond=e.target.open},true);
 document.getElementById('app').addEventListener('change',e=>{
   const k=e.target.dataset.h;if(!k)return;const s=cur();s[k]=e.target.value.trim();save();if(e.target.closest('[data-cond]')){view.cond=true;if(k==='date'){render();return}const sm=e.target.closest('details').querySelector('summary .muted');if(sm)sm.textContent=[condText(s),moonText(s)].filter(Boolean).join(' · ')+(s.lat?' · 📍':'')+(s.note?' · 💬':'');}
   if(k==='date'){render();return}
-  document.getElementById('title').innerHTML=`Προπόνηση Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;refreshDatalists();
+  document.getElementById('title').innerHTML=`${K(s).one} Νο ${esc(s.no||'–')}<small>${esc(s.field||'')} ${fmtDate(s.date)}</small>`;refreshDatalists();
 });
 
 document.getElementById('sheet').addEventListener('click',e=>{
+  const ad=e.target.closest('[data-adm]');if(ad){if(ad.dataset.adm==='add'){const t=document.getElementById('admCard').value.replace(/\D/g,''),n=document.getElementById('admName').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();if(!t||!n){toast('Συμπλήρωσε δελτίο και όνομα');return}adminList.push({card:t,name:n,active:true});admDo('add',t,{name:n})}else admDo(ad.dataset.adm,ad.dataset.t);return}
   const fb=e.target.closest('[data-fish]');if(fb){addCatch(fb.dataset.fish);return}
   const c=e.target.closest('[data-copy]');
   if(c){const[from,to]=c.dataset.copy.split('>');readEditor();const keepFish=edRow[to].fish;edRow[to]={...edRow[from],fish:keepFish};
@@ -567,6 +668,7 @@ document.getElementById('sheet').addEventListener('click',e=>{
   const s=cur();
   switch(a.dataset.act){
     case'close':closeSheet();break;
+    case'admin':openAdmin();break;
     case'rowweather':rowWeather();break;
     case'fishother':addCatch(document.getElementById('fishOther').value);break;
     case'wake':{const on=lsGet('kp_wake','0')!=='1';lsSet('kp_wake',on?'1':'0');setWake(on);openMenu();toast(on?'Η οθόνη μένει αναμμένη':'Κανονικό σβήσιμο οθόνης')}break;
@@ -577,7 +679,7 @@ document.getElementById('sheet').addEventListener('click',e=>{
     case'printblank':closeSheet();printSession(null);break;
     case'export':download(`katagrafi-proponisis-backup-${today()}.json`,JSON.stringify({app:'katagrafi-proponisis',version:APP_VERSION,exported:new Date().toISOString(),sessions},null,1),'application/json');toast('Αποθηκεύτηκε αρχείο');break;
     case'import':document.getElementById('importFile').click();break;
-    case'csvall':download(`proponiseis_oles_${today()}.csv`,csvFor(sessions),'text/csv;charset=utf-8');break;
+    case'csvall':download(`triton_ola_${today()}.csv`,csvFor(sessions),'text/csv;charset=utf-8');break;
   }
 });
 
@@ -601,6 +703,10 @@ document.getElementById('importFile').onchange=e=>{
 
 if('serviceWorker' in navigator&&location.protocol.startsWith('http')){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 applySun();
+document.getElementById('cardBtn').onclick=doLogin;
+document.getElementById('cardIn').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+checkAuth();
 if(lsGet('kp_wake','0')==='1')setWake(true);
 render();
 </script>

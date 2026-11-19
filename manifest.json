@@ -1,6 +1,6 @@
 {
-  "name": "Καταγραφή Προπόνησης – Σύλλογος Τρίτων",
-  "short_name": "Προπόνηση",
+  "name": "Triton Fishing Book",
+  "short_name": "Triton Book",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "any",
