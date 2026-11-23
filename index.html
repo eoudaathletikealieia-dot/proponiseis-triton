@@ -84,7 +84,7 @@ label.f{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-w
 .btns .btn{flex:1}
 /* sheet table (form look) */
 .tablewrap{overflow:auto;background:#fff;border-radius:10px;-webkit-overflow-scrolling:touch}
-table.form{border-collapse:collapse;font-size:11px;min-width:1100px;width:100%}
+table.form{border-collapse:collapse;font-size:11px;min-width:1250px;width:100%}
 table.form th,table.form td{border:1px solid #444;padding:3px 4px;text-align:center;white-space:nowrap;height:22px}
 table.form thead th{font-weight:800}
 table.form .h-rig{background:var(--c-rig)} .h-up{background:var(--c-up)} .h-mid{background:var(--c-mid)} .h-low{background:var(--c-low)} .h-y{background:var(--c-yel)}
@@ -96,6 +96,20 @@ table.form tbody td.ttl{text-align:left}
 .toast.show{opacity:1}
 #printArea{display:none}
 /* quick catch */
+.rodbar{display:flex;gap:6px;overflow-x:auto;margin:0 0 6px;padding-bottom:2px}
+.rodbar button{flex:none;min-width:64px;min-height:56px;border:2px solid var(--navy);background:#fff;color:var(--navy);border-radius:12px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 10px}
+.rodbar button small{font-size:11px;font-weight:700;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rodbar button.on{background:var(--navy);color:var(--gold);box-shadow:inset 0 -4px 0 var(--gold)}
+.rodbar button.add{font-size:24px;border-style:dashed}
+.rodtools{display:flex;align-items:center;gap:8px;margin:0 0 10px}.rodtools b{flex:1}
+.rodtools .tbtn{padding:6px 10px}
+body.sun .rodbar button{border-color:#000;color:#000}body.sun .rodbar button.on{background:#000;color:#FFE600;box-shadow:inset 0 -5px 0 #FFE600}
+.rodnum{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.rodnum button{min-height:60px;border:2px solid var(--navy);border-radius:12px;background:#fff;font-size:24px;font-weight:900;color:var(--navy)}
+.rodnum button.on{background:var(--navy);color:var(--gold)}
+.strikebox{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+.btn.strike{background:#C62828;color:#fff;min-height:48px;white-space:nowrap}
+.row .lft .strk{font-size:11px;color:#C62828;font-weight:900}
 .catchbar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
 .catchbar button{border:2px solid #000;border-radius:14px;min-height:76px;font-weight:900;font-size:15px;color:#000;line-height:1.15;padding:6px 4px}
 .catchbar button big{display:block;font-size:26px}
@@ -164,7 +178,11 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
   #printArea{display:block}
   .ppage{page-break-after:always}
   .ppage:last-child{page-break-after:auto}
-  table.form{min-width:0;font-size:9px}
+  table.form{min-width:0;font-size:7.5px;table-layout:fixed;width:100%}
+  table.form th,table.form td{white-space:normal;overflow:hidden;word-break:break-word}
+  table.form thead th{font-size:6.2px;word-break:normal;letter-spacing:-.2px;padding:1px}
+  .formtitle{margin-left:0!important;flex-wrap:wrap;gap:6px 16px!important;font-size:10px}.condline{margin-left:0!important}
+  .ppage{width:100%;overflow:hidden}
   table.form th,table.form td{height:6.2mm;padding:1px 2px}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -212,12 +230,12 @@ body.sun .copybtn{background:#000;color:#fff;font-size:13px;padding:5px 9px}
 window.onerror=function(m,s,l){var a=document.getElementById('app');if(a)a.innerHTML='<div class="card"><b>Σφάλμα εφαρμογής</b><p class="muted">'+String(m).replace(/</g,'&lt;')+' (γρ. '+l+')</p><p>Στείλε στιγμιότυπο οθόνης στον διαχειριστή.</p></div>';};
 </script>
 <script>
-const APP_VERSION='1.4.2';
+const APP_VERSION='1.5.0';
 const CLUB='ΣΥΛΛΟΓΟΣ ΤΡΙΤΩΝ';
 const AUTH_URL='https://script.google.com/macros/s/AKfycbzJ0cV5GzzYfFGfQpHAMjUkHhujey6kqg6JOTjlXz9NjhNSBOA8u0fnmar06W_fwA49gA/exec';   // ← σύνδεσμος της εφαρμογής ιστού Apps Script (…/exec)
 const KEY='kp_sessions_v1';
 const PM=[['up','ΠΑΝΩ ΠΑΡΑΜΑΛΟ','u','h-up','g-up'],['mid','ΜΕΣΑΙΟ ΠΑΡΑΜΑΛΟ','m','h-mid','g-mid'],['low','ΚΑΤΩ ΠΑΡΑΜΑΛΟ','l','h-low','g-low']];
-const PMF=[['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','numeric'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
+const PMF=[['mat','Είδος','sel'],['len','Μήκος','decimal'],['thick','Πάχος','decimal'],['hook','Hook Nr','sel'],['flotter','Flotter','text'],['bait','Δόλωμα','text'],['fish','Ψάρι','text']];
 
 let sessions=load();
 const KINDS={training:{tab:'🎯 Προπόνηση',one:'Προπόνηση',acc:'προπόνηση',gen:'προπόνησης',newb:'+ Νέα προπόνηση',none:'Καμία προπόνηση ακόμη',print:'ΚΑΤΑΓΡΑΦΗ ΠΡΟΠΟΝΗΣΗΣ',file:'proponisi'},
@@ -234,7 +252,16 @@ function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
 let catchKey=null;
 let view={name:'home',id:null,table:false};
 
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}}
+function load(){let l;try{l=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){l=[]}return migrate(l)}
+function migrate(list){list.forEach(s=>{if(!s||!Array.isArray(s.rows))return;if(!Array.isArray(s.rods)||!s.rods.length)s.rods=[{id:'r1',name:''}];
+  s.rows.forEach(r=>{if(!r.rod)r.rod=s.rods[0].id;if(!r.rig)r.rig={};if(r.rig.dist==null)r.rig.dist='';if(r.strike==null)r.strike='';PM.forEach(([k])=>{if(!r[k])r[k]=emptyPM();if(r[k].mat==null)r[k].mat=''})})});return list}
+const MAT={fishing:['Fluo','Nylon','Σύρμα','Νήμα'],training:['Fluo','Nylon']};
+const HOOKS=['24','22','20','18','16','14','12','10','8','6','4','2','1','1/0','2/0','3/0','4/0','5/0','6/0','7/0','8/0','9/0','10/0'];
+const MAXRODS={fishing:6,training:2};
+function rodOf(s){const id=view.rod&&s.rods.some(r=>r.id===view.rod)?view.rod:s.rods[0].id;view.rod=id;return id}
+function rodRows(s,id){return s.rows.map((r,i)=>({r,i})).filter(x=>x.r.rod===id)}
+function rodLabel(s,id){const i=s.rods.findIndex(r=>r.id===id);const r=s.rods[i];return 'Καλάμι '+(i+1)+(r&&r.name?' · '+r.name:'')}
+function lastOfRod(s,id){const l=rodRows(s,id);return l.length?l[l.length-1].r:null}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(sessions))}catch(e){toast('Σφάλμα αποθήκευσης')}}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -243,13 +270,13 @@ function nowTime(){const d=new Date();return String(d.getHours()).padStart(2,'0'
 function fmtDate(s){if(!s)return'';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y}
 function toast(t){const e=document.getElementById('toast');e.classList.remove('undo');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1800)}
 function cur(){return sessions.find(s=>s.id===view.id)}
-function emptyPM(){return{len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
-function emptyRow(){return{t:nowTime(),rig:{type:'',len:'',thick:''},up:emptyPM(),mid:emptyPM(),low:emptyPM(),w:{},note:''}}
+function emptyPM(){return{mat:'',len:'',thick:'',hook:'',flotter:'',bait:'',fish:''}}
+function emptyRow(){return{t:nowTime(),strike:'',rod:'',rig:{type:'',len:'',thick:'',dist:''},up:emptyPM(),mid:emptyPM(),low:emptyPM(),w:{},note:''}}
 const WK=['wind','bft','sea','sky','temp','pres','ptr'];
 const PTR=['↑ Ανεβαίνει','→ Σταθερό','↓ Πέφτει'];
 function sessW(s){const o={};WK.forEach(k=>o[k]=s[k]||'');return o}
 function emptyW(w){return !w||WK.every(k=>!w[k])}
-function prepNewRow(r,s){r.t=nowTime();PM.forEach(([k])=>r[k].fish='');r.note='';if(emptyW(r.w))r.w=sessW(s);return r}
+function prepNewRow(r,s){r.t=nowTime();r.strike='';PM.forEach(([k])=>r[k].fish='');r.note='';if(emptyW(r.w))r.w=sessW(s);return r}
 /* moon phase */
 function moonInfo(dateStr){
   if(!dateStr)return null;const [y,m,d]=dateStr.split('-').map(Number);
@@ -262,7 +289,8 @@ function moonInfo(dateStr){
   return{name:names[i],emoji:em[i],ill,age:Math.round(age),day:Math.floor(age)+1};
 }
 function moonText(s){const mo=moonInfo(s&&s.date);return mo?`${mo.name} · ${mo.day}η ημέρα (${mo.ill}%)`:''}
-function fishCount(s){let n=0;s.rows.forEach(r=>PM.forEach(([k])=>{const f=(r[k].fish||'').trim();if(f&&f!==NOFISH)n++}));return n}
+function fishCountRows(rows){let n=0;rows.forEach(r=>PM.forEach(([k])=>{const f=(r[k].fish||'').trim();if(f&&f!==NOFISH)n++}));return n}
+function fishCount(s){return fishCountRows(s.rows)}
 
 function refreshDatalists(){
   const sets={type:new Set(),bait:new Set(),fish:new Set(),flotter:new Set(),field:new Set()};
@@ -303,7 +331,8 @@ function render(){
     <div class="full"><label class="f">Πεδίο</label><input class="inp" list="dl-field" data-h="field" value="${esc(s.field)}"></div>
   </div></div>
   ${condCard(s)}
-  <div class="totals"><span>${s.rows.length} καταγραφές</span><span>Ψάρια: <b>🐟 ${fishCount(s)}</b></span></div>
+  ${rodBar(s)}
+  <div class="totals"><span>${rodRows(s,rodOf(s)).length} καταγραφές${s.rods.length>1?' <small class="muted">(σύνολο '+s.rows.length+')</small>':''}</span><span>Ψάρια: <b>🐟 ${fishCountRows(rodRows(s,rodOf(s)).map(x=>x.r))}</b>${s.rods.length>1?' <small class="muted">/ '+fishCount(s)+'</small>':''}</span></div>
   <div class="catchbar">
     <button class="cu" data-catch="up"><big>🐟</big>ΠΑΝΩ</button>
     <button class="cm" data-catch="mid"><big>🐟</big>ΜΕΣΑΙΟ</button>
@@ -315,33 +344,35 @@ function render(){
     <button class="tbtn" data-act="print">🖨 Εκτύπωση / PDF</button>
     <button class="tbtn" data-act="csv">⬇ Excel (CSV)</button>
   </div>`;
-  if(!s.rows.length){h+=`<div class="empty">Καμία καταγραφή. Πάτα «+ Νέα καταγραφή».<br><span class="muted">Κάθε νέα καταγραφή αντιγράφει την αρματωσιά και τα παράμαλα της προηγούμενης· αλλάζεις μόνο ό,τι άλλαξε.</span></div>`}
-  else if(view.table){h+=`<div class="tablewrap">${formTable(s,false)}</div><p class="muted">Πάτα μια γραμμή για επεξεργασία.</p>`}
+  const RR=rodRows(s,rodOf(s));
+  if(!RR.length){h+=`<div class="empty">Καμία καταγραφή. Πάτα «+ Νέα καταγραφή».<br><span class="muted">Κάθε νέα καταγραφή αντιγράφει την αρματωσιά και τα παράμαλα της προηγούμενης· αλλάζεις μόνο ό,τι άλλαξε.</span></div>`}
+  else if(view.table){h+=`<div class="tablewrap">${formTable(s,false,RR)}</div><p class="muted">Πάτα μια γραμμή για επεξεργασία.</p>`}
   else{
-    h+=s.rows.map((r,i)=>{
-      const rig=[r.rig.type,r.rig.len&&('Μ '+r.rig.len),r.rig.thick&&('Π '+r.rig.thick)].filter(Boolean).join(' · ')||'—';
-      const pm=PM.map(([k,lab,c])=>{const p=r[k];const parts=[p.len&&('Μ '+p.len),p.thick&&('Π '+p.thick),p.hook&&('#'+p.hook),p.flotter,p.bait].filter(Boolean);if(!parts.length&&!p.fish)return'';return`<div class="${c}"><b>${lab.split(' ')[0]}</b> ${esc(parts.join(' · '))}${p.fish?` <span class="fish">🐟 ${esc(p.fish)}</span>`:''}</div>`}).join('');
-      return`<div class="row" role="button" onclick="" data-edit="${i}"><div class="lft">${i+1}<span>${esc(r.t)}</span></div><div class="body"><div class="rig">${esc(rig)}</div><div class="pm">${pm||'<span class="muted">Χωρίς παράμαλα</span>'}</div>${r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?`<div class="rnote">🌤 ${esc(condText(r.w))}</div>`:''}${r.note?`<div class="rnote">💬 ${esc(r.note)}</div>`:''}</div></div>`}).join('');
+    h+=RR.map(({r,i},n)=>{
+      const rig=[r.rig.type,r.rig.len&&('Μ '+r.rig.len),r.rig.thick&&('Π '+r.rig.thick),r.rig.dist&&('↔ '+r.rig.dist+' m')].filter(Boolean).join(' · ')||'—';
+      const pm=PM.map(([k,lab,c])=>{const p=r[k];const parts=[p.mat,p.len&&('Μ '+p.len),p.thick&&('Π '+p.thick),p.hook&&('#'+p.hook),p.flotter,p.bait].filter(Boolean);if(!parts.length&&!p.fish)return'';return`<div class="${c}"><b>${lab.split(' ')[0]}</b> ${esc(parts.join(' · '))}${p.fish?` <span class="fish">🐟 ${esc(p.fish)}</span>`:''}</div>`}).join('');
+      return`<div class="row" role="button" onclick="" data-edit="${i}"><div class="lft">${n+1}<span>${esc(r.t)}</span>${r.strike?`<span class="strk">⚡${esc(r.strike)}</span>`:''}</div><div class="body"><div class="rig">${esc(rig)}</div><div class="pm">${pm||'<span class="muted">Χωρίς παράμαλα</span>'}</div>${r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?`<div class="rnote">🌤 ${esc(condText(r.w))}</div>`:''}${r.note?`<div class="rnote">💬 ${esc(r.note)}</div>`:''}</div></div>`}).join('');
   }
   h+=`<div class="btns" style="margin-top:18px"><button class="btn d" data-act="delsess">Διαγραφή ${K(s).gen}</button></div>`;
   app.innerHTML=h;
 }
 
-function formTable(s,print,rowsFrom=0,rowsTo=null){
-  const rows=s?s.rows:[];
-  const to=rowsTo!=null?rowsTo:Math.max(rows.length,25);
-  let h=`<table class="form"><colgroup><col style="width:3%"><col style="width:4.5%"><col style="width:8%"><col style="width:3.8%"><col style="width:3.8%">`;
-  for(let i=0;i<3;i++)h+=`<col style="width:3.4%"><col style="width:3.4%"><col style="width:3.4%"><col style="width:3.4%"><col style="width:5%"><col style="width:5.3%">`;
-  h+=`</colgroup><thead><tr><th class="h-y" rowspan="2" style="font-size:14px">#</th><th class="h-y" rowspan="2" style="font-size:14px">🕒</th><th class="h-rig" colspan="3">ΑΡΜΑΤΩΣΙΑ</th>`;
-  PM.forEach(([,lab,,hc])=>h+=`<th class="${hc}" colspan="6">${lab}</th>`);
-  h+=`</tr><tr><th class="h-rig">ΤΥΠΟΣ</th><th class="h-rig">ΜΗΚΟΣ</th><th class="h-rig">ΠΑΧΟΣ</th>`;
-  PM.forEach(([,,,hc])=>h+=`<th class="${hc}">ΜΗΚΟΣ</th><th class="${hc}">ΠΑΧΟΣ</th><th class="${hc}">HOOK Nr</th><th class="${hc}">FLOTTER</th><th class="${hc}">ΔΟΛΩΜΑ</th><th class="${hc}">ΨΑΡΙ</th>`);
+function formTable(s,print,list,rowsFrom=0,rowsTo=null){
+  list=list||(s?s.rows.map((r,i)=>({r,i})):[]);
+  const to=rowsTo!=null?rowsTo:Math.max(list.length,print?25:0);
+  let h=`<table class="form"><colgroup><col style="width:2.6%"><col style="width:4.2%"><col style="width:7%"><col style="width:3%"><col style="width:3%"><col style="width:3.2%">`;
+  for(let i=0;i<3;i++)h+=`<col style="width:3.2%"><col style="width:3.1%"><col style="width:3.1%"><col style="width:3.2%"><col style="width:3.3%"><col style="width:4.6%"><col style="width:5.2%">`;
+  h+=`</colgroup><thead><tr><th class="h-y" rowspan="2" style="font-size:14px">#</th><th class="h-y" rowspan="2" style="font-size:14px">🕒</th><th class="h-rig" colspan="4">ΑΡΜΑΤΩΣΙΑ</th>`;
+  PM.forEach(([,lab,,hc])=>h+=`<th class="${hc}" colspan="7">${lab}</th>`);
+  h+=`</tr><tr><th class="h-rig">ΤΥΠΟΣ</th><th class="h-rig">ΜΗΚΟΣ</th><th class="h-rig">ΠΑΧΟΣ</th><th class="h-rig">ΑΠΟΣΤ.</th>`;
+  PM.forEach(([,,,hc])=>h+=`<th class="${hc}">ΕΙΔΟΣ</th><th class="${hc}">ΜΗΚΟΣ</th><th class="${hc}">ΠΑΧΟΣ</th><th class="${hc}">HOOK</th><th class="${hc}">FLOTTER</th><th class="${hc}">ΔΟΛΩΜΑ</th><th class="${hc}">ΨΑΡΙ</th>`);
   h+=`</tr></thead><tbody>`;
-  for(let i=rowsFrom;i<to;i++){
-    const r=rows[i];
-    if(!r){h+=`<tr><td>${print?'':''}</td><td></td><td></td><td></td><td></td>${'<td></td>'.repeat(18)}</tr>`;continue}
-    h+=`<tr ${print?'':`data-edit="${i}" onclick=""`}><td>${i+1}</td><td>${esc(r.t)}</td><td class="ttl">${esc(r.rig.type)}</td><td>${esc(r.rig.len)}</td><td>${esc(r.rig.thick)}</td>`;
-    PM.forEach(([k])=>PMF.forEach(([f])=>h+=`<td>${esc(r[k][f])}</td>`));
+  for(let n=rowsFrom;n<to;n++){
+    const x=list[n];
+    if(!x){h+=`<tr>${'<td></td>'.repeat(27)}</tr>`;continue}
+    const r=x.r;
+    h+=`<tr ${print?'':`data-edit="${x.i}" onclick=""`}><td>${n+1}</td><td>${esc(r.t)}${r.strike?`<br>⚡${esc(r.strike)}`:''}</td><td class="ttl">${esc(r.rig.type)}</td><td>${esc(r.rig.len)}</td><td>${esc(r.rig.thick)}</td><td>${esc(r.rig.dist||'')}</td>`;
+    PM.forEach(([k])=>PMF.forEach(([f])=>h+=`<td>${esc(r[k][f]||'')}</td>`));
     h+=`</tr>`;
   }
   return h+`</tbody></table>`;
@@ -349,20 +380,51 @@ function formTable(s,print,rowsFrom=0,rowsTo=null){
 
 function printNotes(s,from,to,last){
   if(!s)return'';const items=[];
-  s.rows.slice(from,to).forEach((r,j)=>{const i=from+j;const w=r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?condText(r.w):'';if(w||r.note)items.push(`<b>#${i+1}</b> ${esc([w&&('Καιρός: '+w),r.note].filter(Boolean).join(' — '))}`)});
+  s.rods.forEach(rd=>rodRows(s,rd.id).forEach(({r},j)=>{const i=j;const pre=s.rods.length>1?rodLabel(s,rd.id).split(' · ')[0]+' ':'';const w=r.w&&!emptyW(r.w)&&condText(r.w)!==condText(s)?condText(r.w):'';if(w||r.note)items.push(`<b>${esc(pre)}#${i+1}</b> ${esc([w&&('Καιρός: '+w),r.note].filter(Boolean).join(' — '))}`)}));
   if(last&&s.note)items.unshift(`<b>${K(s).one}:</b> ${esc(s.note)}`);
   return items.length?`<div class="pnotes"><b>ΣΗΜΕΙΩΣΕΙΣ</b><br>${items.join('<br>')}</div>`:'';
 }
 function printSession(s){
-  const PER=25,rows=s?s.rows.length:0,pages=Math.max(1,Math.ceil(rows/PER));
-  let h='';
-  for(let p=0;p<pages;p++){
-    h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>${K(s).print} Νο ${s&&s.no?esc(s.no):'..........'}</span><span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div><div class="condline">ΚΑΙΡΟΣ ${s&&condText(s)?esc(condText(s)):'....................................................................................'} &nbsp;&nbsp; ΣΤΙΓΜΑ ${s&&s.lat?gpsText(s):'..................................................'} &nbsp;&nbsp; ΣΕΛΗΝΗ ${s&&s.date?moonText(s):'..............................'}</div>${formTable(s,true,p*PER,(p+1)*PER)}</div>`;
-  }
+  const PER=25;let h='';
+  const groups=s?s.rods.map(rd=>({rd,list:rodRows(s,rd.id)})).filter((g,i)=>g.list.length||i===0):[{rd:null,list:[]}];
+  groups.forEach(g=>{
+    const pages=Math.max(1,Math.ceil(g.list.length/PER));
+    for(let p=0;p<pages;p++){
+      h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>${K(s).print} Νο ${s&&s.no?esc(s.no):'..........'}</span>${s&&s.rods.length>1?`<span>${esc(rodLabel(s,g.rd.id)).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase()}</span>`:''}<span style="flex:1">ΠΕΔΙΟ ${s&&s.field?esc(s.field):'..............................................................'}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${s&&s.date?fmtDate(s.date):'..............................'}</span>${pages>1?`<span>Σελ. ${p+1}/${pages}</span>`:''}</div><div class="condline">ΚΑΙΡΟΣ ${s&&condText(s)?esc(condText(s)):'....................................................................................'} &nbsp;&nbsp; ΣΤΙΓΜΑ ${s&&s.lat?gpsText(s):'..................................................'} &nbsp;&nbsp; ΣΕΛΗΝΗ ${s&&s.date?moonText(s):'..............................'}</div>${formTable(s,true,g.list,p*PER,(p+1)*PER)}</div>`;
+    }
+  });
   const nt=printNotes(s,0,s?s.rows.length:0,true);
   if(nt)h+=`<div class="ppage"><div class="formtitle"><img src="logo.png" alt=""><span>${CLUB}</span><span>${K(s).print} Νο ${esc(s.no||'')}</span><span style="flex:1">ΠΕΔΙΟ ${esc(s.field||'')}</span><span>ΗΜΕΡΟΜΗΝΙΑ ${fmtDate(s.date)}</span></div>${nt}</div>`;
   document.getElementById('printArea').innerHTML=h;
   setTimeout(()=>window.print(),100);
+}
+
+/* ---------- RODS ---------- */
+function rodBar(s){
+  const cur=rodOf(s),max=MAXRODS[kindOf(s)];
+  if(s.rods.length<2&&max<2)return'';
+  return `<div class="rodbar">${s.rods.map((r,i)=>`<button class="${r.id===cur?'on':''}" data-rod="${r.id}"><b>🎣 ${i+1}</b>${r.name?`<small>${esc(r.name)}</small>`:''}</button>`).join('')}${s.rods.length<max?`<button class="add" data-act="rodadd">＋</button>`:''}</div>
+  <div class="rodtools"><b>${esc(rodLabel(s,cur))}</b><button class="tbtn" data-act="rodname">✏️ Όνομα</button>${s.rods.length>1&&!rodRows(s,cur).length?`<button class="tbtn" data-act="roddel">🗑</button>`:''}</div>`;
+}
+function openRodSetup(s){
+  const max=MAXRODS[kindOf(s)];
+  const sh=document.getElementById('sheet');
+  sh.innerHTML=`<div class="sheet-h"><b>🎣 Αριθμός καλαμιών</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+    <div class="rodnum">${Array.from({length:max},(_,i)=>`<button data-rodn="${i+1}">${i+1}</button>`).join('')}</div>
+    <div id="rodNames"></div></div>`;
+  sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
+}
+function rodNamesForm(n){
+  const s=cur();
+  document.querySelectorAll('#sheet [data-rodn]').forEach(b=>b.classList.toggle('on',Number(b.dataset.rodn)===n));
+  document.getElementById('rodNames').innerHTML=Array.from({length:n},(_,i)=>`<div style="margin-top:10px"><label class="f">Καλάμι ${i+1} – όνομα (προαιρετικό)</label><input class="inp" data-rodname="${i}" placeholder="π.χ. Zziplex MF 1" value="${esc((s.rods[i]||{}).name||'')}"></div>`).join('')+
+    `<div class="btns" style="margin-top:14px"><button class="btn g" data-act="rodok" data-n="${n}">Συνέχεια</button></div>`;
+}
+function rodSetupOk(n){
+  const s=cur();const names=[...document.querySelectorAll('#sheet [data-rodname]')].map(x=>x.value.trim());
+  const rods=[];for(let i=0;i<n;i++){const ex=s.rods[i];rods.push({id:ex?ex.id:'r'+(i+1)+uid().slice(-4),name:names[i]||''})}
+  s.rods=rods;s.rows.forEach(r=>{if(!rods.some(x=>x.id===r.rod))r.rod=rods[0].id});
+  view.rod=rods[0].id;save();closeSheet();render();
 }
 
 /* ---------- EDITOR ---------- */
@@ -371,12 +433,12 @@ function openEditor(idx){
   const s=cur();
   edIdx=idx;
   if(idx==null){
-    const prev=s.rows[s.rows.length-1];
-    edRow=prepNewRow(prev?JSON.parse(JSON.stringify(prev)):emptyRow(),s);
+    const prev=lastOfRod(s,rodOf(s));
+    edRow=prepNewRow(prev?JSON.parse(JSON.stringify(prev)):emptyRow(),s);edRow.rod=rodOf(s);
   }else{edRow=JSON.parse(JSON.stringify(s.rows[idx]));if(!edRow.w)edRow.w={};if(edRow.note==null)edRow.note='';}
-  const num=idx==null?s.rows.length+1:idx+1;
+  const rid=edRow.rod||rodOf(s);const rl=rodRows(s,rid);const num=idx==null?rl.length+1:rl.findIndex(x=>x.i===idx)+1;const fishing=kindOf(s)==='fishing';
   const inp=(path,val,mode,list,full)=>`<div class="${full?'full':''}"><label class="f">${path[1]}</label><input class="inp" ${mode==='text'?'':`inputmode="${mode}"`} ${list?`list="${list}"`:''} data-p="${path[0]}" value="${esc(val)}"></div>`;
-  let h=`<div class="sheet-h"><b>Καταγραφή #${num}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
+  let h=`<div class="sheet-h"><b>Καταγραφή #${num}${s.rods.length>1?' · '+esc(rodLabel(s,rid)):''}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
   <div class="grp g-gen"><h3>ΩΡΑ</h3><div class="gb" style="background:#fffde0;grid-template-columns:1fr auto"><input class="inp" type="time" data-p="t" value="${esc(edRow.t)}"><button class="btn w" data-act="now" style="padding:8px 12px">Τώρα</button></div></div>
   <details class="grp g-w" ${emptyW(edRow.w)?'':''}><summary><h3>🌤 ΚΑΙΡΟΣ <span style="font-weight:600;font-size:13px">${esc(condText(edRow.w)||'—')} ▾</span></h3></summary><div class="gb">
     <div class="full"><button class="btn g" data-act="rowweather" style="width:100%">🌤 Καιρός τώρα</button></div>
@@ -392,11 +454,15 @@ function openEditor(idx){
     ${inp(['rig.type','Τύπος'],edRow.rig.type,'text','dl-type',true)}
     ${inp(['rig.len','Μήκος'],edRow.rig.len,'decimal')}
     ${inp(['rig.thick','Πάχος'],edRow.rig.thick,'decimal')}
+    ${inp(['rig.dist','Απόσταση βολής (m)'],edRow.rig.dist||'','numeric',null,true)}
+    ${fishing?`<div class="full strikebox"><button class="btn strike" data-act="strike">⚡ Strike Time</button><input class="inp" type="time" data-p="strike" value="${esc(edRow.strike||'')}"></div>`:''}
   </div></div>`;
   PM.forEach(([k,lab,,,gc],pi)=>{
     h+=`<div class="grp ${gc}"><h3>${lab}${pi>0?`<button class="copybtn" data-copy="${PM[pi-1][0]}>${k}">⇣ ίδιο με ${PM[pi-1][1].split(' ')[0].toLowerCase()}</button>`:''}</h3><div class="gb">`;
     PMF.forEach(([f,fl,mode])=>{
       if(f==='bait'){h+=baitSelect(k,edRow[k].bait);return}
+      if(f==='mat'){h+=`<div><label class="f">Είδος παραμάλου</label><select class="inp" data-p="${k}.mat">${opt(MAT[kindOf(s)],edRow[k].mat)}</select></div>`;return}
+      if(f==='hook'){h+=`<div><label class="f">Hook Nr</label><select class="inp" data-p="${k}.hook" data-bait="1">${opt(HOOKS,edRow[k].hook)}<option value="__other">Άλλο…</option></select></div>`;return}
       if(f==='fish'){h+=fishSelect(k,edRow[k].fish);return}
       const list=f==='bait'?'dl-bait':f==='fish'?'dl-fish':f==='flotter'?'dl-flotter':'';h+=inp([k+'.'+f,fl],edRow[k][f],mode,list,f==='fish')});
     h+=`</div></div>`;
@@ -560,22 +626,24 @@ function openCatch(k){
   const freq=Object.keys(hist).sort((a,b)=>hist[b]-hist[a]).slice(0,6);
   const extra=Object.keys(hist).filter(f=>!DEF_FISH.includes(f));
   const all=[...DEF_FISH,...extra].sort((a,b)=>a.localeCompare(b,'el'));
-  const s=cur(),last=s.rows[s.rows.length-1];
+  const s=cur(),last=lastOfRod(s,rodOf(s));
   const h=`<div class="sheet-h"><b>🐟 ${lab}</b><button class="hbtn" data-act="close">✕</button></div><div class="sheet-b">
     <div class="fishchips"><button data-fish="${NOFISH}" style="grid-column:1/-1;background:#eee">${NOFISH}</button></div>
     <div class="grid3" style="grid-template-columns:1fr auto;margin-bottom:12px"><input class="inp" id="fishOther" list="dl-fish" placeholder="Γράψε ψάρι…"><button class="btn p" data-act="fishother">OK</button></div>
     ${freq.length?`<label class="f">ΣΥΧΝΑ</label><div class="fishchips">${freq.map(f=>`<button data-fish="${esc(f)}" style="background:#FFF3CC">${esc(f)}</button>`).join('')}</div>`:''}
     <label class="f">ΟΛΑ ΤΑ ΨΑΡΙΑ (Α–Ω)</label>
     <div class="fishchips">${all.map(f=>`<button data-fish="${esc(f)}">${esc(f)}</button>`).join('')}</div>
-    <p class="muted">${last?'Η αρματωσιά και τα παράμαλα αντιγράφονται από την καταγραφή #'+s.rows.length+'.':'Πρώτη καταγραφή: συμπλήρωσε μετά αρματωσιά και παράμαλα.'}</p></div>`;
+    <p class="muted">${last?'Η αρματωσιά και τα παράμαλα αντιγράφονται από την τελευταία καταγραφή'+(s.rods.length>1?' του '+rodLabel(s,rodOf(s)):'')+'.':'Πρώτη καταγραφή: συμπλήρωσε μετά αρματωσιά και παράμαλα.'}</p></div>`;
   const sh=document.getElementById('sheet');sh.innerHTML=h;sh.classList.add('open');document.getElementById('sheetBg').classList.add('open');sh.scrollTop=0;
 }
 function addCatch(fish){
   fish=(fish||'').trim();if(!fish)return;
   const s=cur(),k=catchKey,t=nowTime(),before=JSON.stringify(s.rows);
-  const last=s.rows[s.rows.length-1];let n;
-  if(last&&!(last[k].fish||'').trim()){last[k].fish=fish;n=s.rows.length}
-  else{const r=prepNewRow(last?JSON.parse(JSON.stringify(last)):emptyRow(),s);r.t=t;r[k].fish=fish;s.rows.push(r);n=s.rows.length}
+  const rid=rodOf(s),last=lastOfRod(s,rid);let row;
+  if(last&&!(last[k].fish||'').trim()){row=last}
+  else{row=prepNewRow(last?JSON.parse(JSON.stringify(last)):emptyRow(),s);row.t=t;row.rod=rid;s.rows.push(row)}
+  row[k].fish=fish;if(kindOf(s)==='fishing'&&!row.strike)row.strike=t;
+  const n=rodRows(s,rid).length;
   save();closeSheet();render();
   undoToast(`${fish===NOFISH?'':'🐟 '}${fish} → #${n}`,()=>{s.rows=JSON.parse(before);save();render();toast('Αναιρέθηκε')});
   if(navigator.vibrate)navigator.vibrate(40);
@@ -612,11 +680,11 @@ function openMenu(){
 function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
 function csvCell(v){v=String(v==null?'':v);return /[";\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
 function csvFor(list){
-  const head=['Τύπος','Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Βαρομετρικό hPa','Τάση βαρομ.','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','#','Ώρα','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος'];
+  const head=['Τύπος','Νο','Πεδίο','Ημερομηνία','Άνεμος','Μποφόρ','Θάλασσα','Ουρανός','Θερμ. °C','Βαρομετρικό hPa','Τάση βαρομ.','Γ. πλάτος','Γ. μήκος','Σελήνη','Σχόλια προπόνησης','Καλάμι','Όνομα καλαμιού','#','Ώρα','Strike','Αρματωσιά τύπος','Αρματωσιά μήκος','Αρματωσιά πάχος','Απόσταση βολής'];
   PM.forEach(([,lab])=>{const n=lab.split(' ')[0];PMF.forEach(([,fl])=>head.push(n+' '+fl))});
   head.push('Καταγρ. άνεμος','Καταγρ. Μποφόρ','Καταγρ. θάλασσα','Καταγρ. ουρανός','Καταγρ. θερμ.','Καταγρ. βαρομ.','Καταγρ. τάση','Σχόλια καταγραφής');
   const lines=[head.map(csvCell).join(';')];
-  list.forEach(s=>s.rows.forEach((r,i)=>{const c=[K(s).one,s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.pres||'',s.ptr||'',s.lat||'',s.lon||'',moonText(s),s.note||'',i+1,r.t,r.rig.type,r.rig.len,r.rig.thick];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f])));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))}));
+  list.forEach(s=>s.rods.forEach((rd,ri)=>rodRows(s,rd.id).forEach(({r},i)=>{const c=[K(s).one,s.no,s.field,fmtDate(s.date),s.wind||'',s.bft||'',s.sea||'',s.sky||'',s.temp||'',s.pres||'',s.ptr||'',s.lat||'',s.lon||'',moonText(s),s.note||'',ri+1,rd.name||'',i+1,r.t,r.strike||'',r.rig.type,r.rig.len,r.rig.thick,r.rig.dist||''];PM.forEach(([k])=>PMF.forEach(([f])=>c.push(r[k][f]||'')));WK.forEach(k=>c.push((r.w||{})[k]||''));c.push(r.note||'');lines.push(c.map(csvCell).join(';'))})));
   return '﻿'+lines.join('\r\n');
 }
 
@@ -627,7 +695,7 @@ document.getElementById('fab').onclick=()=>{
     const maxNo=mine.reduce((m,s)=>Math.max(m,Number(s.no)||0),0);
     const last=[...mine].sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0];
     const s={id:uid(),kind:homeKind,no:String(maxNo+1),field:last?last.field:'',date:today(),rows:[]};
-    sessions.push(s);save();view={name:'session',id:s.id,table:false};render();
+    s.rods=[{id:'r1',name:''}];sessions.push(s);save();view={name:'session',id:s.id,table:false,rod:'r1'};render();openRodSetup(s);
   }else openEditor(null);
 };
 document.getElementById('backBtn').onclick=()=>{view={name:'home'};render();window.scrollTo(0,0)};
@@ -635,8 +703,9 @@ document.getElementById('menuBtn').onclick=openMenu;
 document.getElementById('sheetBg').onclick=closeSheet;
 
 document.getElementById('app').addEventListener('click',e=>{
-  const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false,cond:false};render();window.scrollTo(0,0);return}
+  const o=e.target.closest('[data-open]');if(o){view={name:'session',id:o.dataset.open,table:false,cond:false,rod:null};render();window.scrollTo(0,0);return}
   const kt=e.target.closest('[data-kind]');if(kt){homeKind=kt.dataset.kind;lsSet('kp_kind',homeKind);render();return}
+  const rb=e.target.closest('[data-rod]');if(rb){view.rod=rb.dataset.rod;render();return}
   const ct=e.target.closest('[data-catch]');if(ct){openCatch(ct.dataset.catch);return}
   const ed=e.target.closest('[data-edit]');if(ed){openEditor(Number(ed.dataset.edit));return}
   const a=e.target.closest('[data-act]');if(!a)return;
@@ -646,6 +715,9 @@ document.getElementById('app').addEventListener('click',e=>{
     case'autocond':autoCond();break;
     case'gpsclear':delete s.lat;delete s.lon;save();view.cond=true;render();break;
     case'table':view.table=true;render();break;
+    case'rodadd':{const nm=(prompt('Όνομα για το καλάμι '+(s.rods.length+1)+' (προαιρετικό):')||'').trim();const id='r'+(s.rods.length+1)+uid().slice(-4);s.rods.push({id,name:nm});view.rod=id;save();render();toast('Προστέθηκε '+rodLabel(s,id))}break;
+    case'rodname':{const id=rodOf(s);const r=s.rods.find(x=>x.id===id);const nm=prompt('Όνομα για το '+rodLabel(s,id).split(' · ')[0]+':',r.name||'');if(nm!=null){r.name=nm.trim();save();render()}}break;
+    case'roddel':{const id=rodOf(s);if(confirm('Αφαίρεση του '+rodLabel(s,id)+';')){s.rods=s.rods.filter(x=>x.id!==id);view.rod=s.rods[0].id;save();render()}}break;
     case'print':printSession(s);break;
     case'csv':download(`${K(s).file}_${s.no||''}_${s.date||''}.csv`,csvFor([s]),'text/csv;charset=utf-8');break;
     case'delsess':if(confirm(`Διαγραφή: ${K(s).one} Νο ${s.no} με ${s.rows.length} καταγραφές; Δεν αναιρείται.`)){sessions=sessions.filter(x=>x.id!==s.id);save();view={name:'home'};render();toast('Διαγράφηκε')}break;
@@ -660,6 +732,7 @@ document.getElementById('app').addEventListener('change',e=>{
 
 document.getElementById('sheet').addEventListener('click',e=>{
   const ad=e.target.closest('[data-adm]');if(ad){if(ad.dataset.adm==='add'){const t=document.getElementById('admCard').value.replace(/\D/g,''),n=document.getElementById('admName').value.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase();if(!t||!n){toast('Συμπλήρωσε δελτίο και όνομα');return}adminList.push({card:t,name:n,active:true});admDo('add',t,{name:n})}else admDo(ad.dataset.adm,ad.dataset.t);return}
+  const rn=e.target.closest('[data-rodn]');if(rn){rodNamesForm(Number(rn.dataset.rodn));return}
   const fb=e.target.closest('[data-fish]');if(fb){addCatch(fb.dataset.fish);return}
   const c=e.target.closest('[data-copy]');
   if(c){const[from,to]=c.dataset.copy.split('>');readEditor();const keepFish=edRow[to].fish;edRow[to]={...edRow[from],fish:keepFish};
@@ -668,6 +741,8 @@ document.getElementById('sheet').addEventListener('click',e=>{
   const s=cur();
   switch(a.dataset.act){
     case'close':closeSheet();break;
+    case'rodok':rodSetupOk(Number(a.dataset.n));break;
+    case'strike':document.querySelector('#sheet [data-p="strike"]').value=nowTime();if(navigator.vibrate)navigator.vibrate(40);break;
     case'admin':openAdmin();break;
     case'rowweather':rowWeather();break;
     case'fishother':addCatch(document.getElementById('fishOther').value);break;
@@ -685,7 +760,7 @@ document.getElementById('sheet').addEventListener('click',e=>{
 
 document.getElementById('sheet').addEventListener('change',e=>{
   const sel=e.target.closest('[data-bait]');if(!sel||sel.value!=='__other')return;
-  const v=(prompt(sel.dataset.p.endsWith('fish')?'Γράψε το ψάρι:':'Γράψε το δόλωμα:')||'').trim();
+  const v=(prompt(sel.dataset.p.endsWith('fish')?'Γράψε το ψάρι:':sel.dataset.p.endsWith('hook')?'Γράψε το νούμερο αγκιστριού (π.χ. 8/0):':'Γράψε το δόλωμα:')||'').trim();
   if(!v){sel.value='';return}
   if(![...sel.options].some(o=>o.value===v)){const o=document.createElement('option');o.textContent=v;sel.insertBefore(o,sel.lastElementChild)}
   sel.value=v;
@@ -695,7 +770,7 @@ document.getElementById('importFile').onchange=e=>{
   rd.onload=()=>{try{
     const d=JSON.parse(rd.result);const list=Array.isArray(d)?d:d.sessions;if(!Array.isArray(list))throw 0;
     let add=0,upd=0;
-    list.forEach(s=>{if(!s||!Array.isArray(s.rows))return;const i=sessions.findIndex(x=>x.id===s.id);if(i>=0){sessions[i]=s;upd++}else{sessions.push(s);add++}});
+    migrate(list);list.forEach(s=>{if(!s||!Array.isArray(s.rows))return;const i=sessions.findIndex(x=>x.id===s.id);if(i>=0){sessions[i]=s;upd++}else{sessions.push(s);add++}});
     save();closeSheet();view={name:'home'};render();toast(`Εισαγωγή: ${add} νέες, ${upd} ενημερώθηκαν`);
   }catch(err){alert('Μη έγκυρο αρχείο αντιγράφου.')}};
   rd.readAsText(f);e.target.value='';
